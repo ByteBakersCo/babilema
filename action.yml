@@ -1,0 +1,5 @@
+name: 'Babilema'
+description: 'A GitHub Action to turn issues into blog posts'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'

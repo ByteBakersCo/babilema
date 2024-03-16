@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{.Metadata.Description}}">
+    <meta name="keywords" content="{{.Metadata.Keywords}}">
+    <meta name="author" content="{{.Metadata.Author}}">
+    <meta name="robots" content="index, follow">
+    <title>{{.Metadata.Title}}</title>
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{.Metadata.URL}}">
+    <meta property="og:title" content="{{.Metadata.Title}}">
+    <meta property="og:description" content="{{.Metadata.Description}}">
+    <meta property="og:image" content="{{.Metadata.Image}}">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{.Metadata.URL}}">
+    <meta property="twitter:title" content="{{.Metadata.Title}}">
+    <meta property="twitter:description" content="{{.Metadata.Description}}">
+    <meta property="twitter:image" content="{{.Metadata.Image}}">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "{{.Metadata.URL}}"
+        },
+        "headline": "{{.Metadata.Title}}",
+        "description": "{{.Metadata.Description}}",
+        "image": "{{.Metadata.Image}}",
+        "author": {
+            "@type": "Person",
+            "name": "{{.Metadata.Author}}"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "{{.Metadata.Publisher}}",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "{{.Metadata.Logo}}"
+            }
+        },
+        "datePublished": "{{.Metadata.DatePublished}}",
+        "dateModified": "{{.Metadata.DateModified}}"
+    }
+    </script>
+</head>
+
+<body>
+    <div id="content">
+        {{.Content}}
+    </div>
+</body>
+
+</html>
