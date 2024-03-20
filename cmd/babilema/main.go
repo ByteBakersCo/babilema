@@ -5,41 +5,34 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/ByteBakersCo/babilema/internal/config"
 	"github.com/ByteBakersCo/babilema/internal/generator"
 	"github.com/ByteBakersCo/babilema/internal/parser"
+	"github.com/ByteBakersCo/babilema/internal/utils"
 )
 
 func main() {
-	outputDir := flag.String(
-		"output-dir",
-		"generated/",
-		"Directory where the generated HTML files should be saved",
-	)
-	templateFile := flag.String(
-		"template-file",
-		"templates/post.html",
-		"HTML template file to use for the blog posts",
+	configFilePath := flag.String(
+		"config",
+		utils.RootDir()+"/.babilema.yml",
+		"Path to the config file",
 	)
 
 	flag.Parse()
 
-	if *outputDir == "" || *templateFile == "" {
-		log.Fatal(
-			"Error: You must provide an output directory and template file.",
-		)
+	cfg, err := config.LoadConfig(*configFilePath)
+	if err != nil {
+		log.Fatal("Error loading config:", err)
 	}
 
-	parsedIssues, err := parser.ParseIssues()
+	log.Println("Config loaded successfully from", *configFilePath)
+
+	parsedIssues, err := parser.ParseIssues(cfg)
 	if err != nil {
 		log.Fatal("Error parsing issues:", err)
 	}
 
-	err = generator.GenerateBlogPosts(
-		parsedIssues,
-		*outputDir,
-		*templateFile,
-		nil,
-	)
+	err = generator.GenerateBlogPosts(parsedIssues, cfg, nil)
 	if err != nil {
 		log.Fatal("Error generating blog posts:", err)
 	}
