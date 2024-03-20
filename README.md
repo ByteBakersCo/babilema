@@ -43,10 +43,9 @@ You can pass a different path as an argument when executing the action.
 Like so:  
 ```yaml
 name: Babilema
-  uses:
-  babilema/babilema@v0.1.0
-    with:
-      config: .babilema.yml
+uses: babilema/babilema@v0.1.0
+with:
+  config: 'blog/.config.yml'
 ```
 
 The default configuration file would look like this (if it wasn't built in Go):
