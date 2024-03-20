@@ -8,7 +8,7 @@ Babilema (Esperanto for _garrulous_) is a minimalist static blog generator that
 turns GitHub issues into blog posts.  
 It is intended to be used as a GitHub action.
 
-### Markdown metadata structure (AKA front matter)
+## Markdown metadata structure (AKA front matter)
 
 Input issues should be written in markdown with a **TOML** front matter.  
 The front matter should be at the very top of the file and start/end with `---`.  
@@ -39,7 +39,7 @@ It uses GitHub issues as its source.
 
 You can find an example of a blog post in the issues.  
 
-### Configuration file
+## Configuration file
 
 Babilema uses a TOML configuration file, by default it will look for
 `.babilema.yml` at the root of your repo.  
@@ -68,8 +68,9 @@ css_dir = "{repo_root}/{output_dir}/templates/css" # The directory where the CSS
 
 By default, `output_dir` will be used to determine the root of all other paths and it will always be preceded by `{repo_root}`.  
 Meaning that if you leave `output_dir` empty, it will be equal to `{repo_root}`, if you set it to `blog/` it will be `{repo_root}/blog/`.  
-If you want to use a different directory for your templates, it will NOT be preceded by `output_dir` but only `{repo_root}.  
+If you want to use a different directory for your templates, it will NOT be preceded by `output_dir` but only `{repo_root}`.  
 
+## Usage tips
 ### robots.txt
 **Don't forget to at least disallow your templates directory path in your
 robots.txt file**
@@ -82,7 +83,7 @@ Disallow: /blog/templates/
 
 ### History file
 
-Babilema uses a `.babilema-history.toml` file in the `output_dir` in order to
+Babilema generates and uses a `.babilema-history.toml` file in the `output_dir` in order to
 check whether a given issue was already parsed and if it was modified since
 last time.  If you want to re-generate all blog posts, you can delete this
 file.
