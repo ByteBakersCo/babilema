@@ -10,9 +10,6 @@ import (
 	"github.com/google/go-github/github"
 )
 
-// TODO: need to validate that all the critical metadata is present
-// TODO: need to add conditional HTML rendering for metadata, etc
-
 func mockIssue() github.Issue {
 	body := `---
 Description = "This is a test post for Babilema"
