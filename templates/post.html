@@ -4,9 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{if .Metadata.Description}}
     <meta name="description" content="{{.Metadata.Description}}">
+    {{end}}
+    {{if .Metadata.Keywords}}
     <meta name="keywords" content="{{.Metadata.Keywords}}">
+    {{end}}
+    {{if .Metadata.Author}}
     <meta name="author" content="{{.Metadata.Author}}">
+    {{end}}
     <meta name="robots" content="index, follow">
     <title>{{.Metadata.Title}}</title>
 
@@ -14,15 +20,29 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{.Metadata.URL}}">
     <meta property="og:title" content="{{.Metadata.Title}}">
+    {{if .Metadata.Description}}
     <meta property="og:description" content="{{.Metadata.Description}}">
+    {{end}}
+    {{if .Metadata.Image}}
     <meta property="og:image" content="{{.Metadata.Image}}">
+    {{end}}
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{.Metadata.URL}}">
     <meta property="twitter:title" content="{{.Metadata.Title}}">
+    {{if .Metadata.Description}}
     <meta property="twitter:description" content="{{.Metadata.Description}}">
+    {{end}}
+    {{if .Metadata.Image}}
     <meta property="twitter:image" content="{{.Metadata.Image}}">
+    {{end}}
+
+    {{if .CSSLinks}}
+    {{range .CSSLinks}}
+    <link rel="stylesheet" type="text/css" href="{{.}}">
+    {{end}}
+    {{end}}
 
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -34,30 +54,59 @@
             "@id": "{{.Metadata.URL}}"
         },
         "headline": "{{.Metadata.Title}}",
+        {{if .Metadata.Description}}
         "description": "{{.Metadata.Description}}",
+        {{end}}
+        {{if .Metadata.Image}}
         "image": "{{.Metadata.Image}}",
+        {{end}}
+        {{if .Metadata.Author}}
         "author": {
             "@type": "Person",
             "name": "{{.Metadata.Author}}"
         },
+        {{end}}
+        {{if .Metadata.Publisher}}
         "publisher": {
             "@type": "Organization",
             "name": "{{.Metadata.Publisher}}",
+        {{if .Metadata.Logo}}
             "logo": {
                 "@type": "ImageObject",
                 "url": "{{.Metadata.Logo}}"
             }
+        {{end}}
         },
+        {{end}}
         "datePublished": "{{.Metadata.DatePublished}}",
+        {{if ne .Metadata.DateModified .Metadata.DatePublished}}
         "dateModified": "{{.Metadata.DateModified}}"
+        {{end}}
     }
     </script>
 </head>
 
 <body>
-    <div id="content">
+    {{if .Header}}
+    <header>{{.Header}}</header>
+    {{end}}
+    <main id="content">
+        <div id="title">
+            <h1>{{.Metadata.Title}}</h1>
+            {{if .Metadata.Author}}
+            <p>By {{.Metadata.Author}} on {{.Metadata.DatePublished}}</p>
+            {{if ne .Metadata.DateModified .Metadata.DatePublished}}
+            <p>Last modified on {{.Metadata.DateModified}}</p>
+            {{end}}
+
+            {{end}}
+        </div>
         {{.Content}}
-    </div>
+    </main>
+    <!-- TODO: add related articles if any (if no tags -> "other articles" or something)-->
+    {{if .Footer}}
+    <footer>{{.Footer}}</footer>
+    {{end}}
 </body>
 
 </html>
