@@ -3,13 +3,13 @@
 > This is a work in progress  
 
 Babilema (Esperanto for _garrulous_) is a minimalist static blog generator that
-turns GitHub issues into blog posts. It is intended to be used as a GitHub
-action.
+turns GitHub issues into blog posts.  
+It is intended to be used as a GitHub action.
 
 ### Markdown metadata structure (AKA front matter)
 
 Input issues should be written in markdown with a **TOML** front matter. The
-front matter should be at the very top of the file and start/end with `---`.
+front matter should be at the very top of the file and start/end with `---`.  
 The following fields are currently supported:
 
 ```go
@@ -31,14 +31,21 @@ struct {
 }
 ```
 
-You can find an example of a blog post in the issues
+You can find an example of a blog post in the issues.
 
 ### Configuration file
 
 Babilema uses a TOML configuration file, by default it will look for
-`.babilema.yml` at the root of your repo. You can pass a different path as an
-argument when executing the action. Like so: ```yaml name: Babilema uses:
-babilema/babilema@v0.1.0 with: config: .babilema.yml ```
+`.babilema.yml` at the root of your repo.  
+You can pass a different path as an argument when executing the action.  
+Like so:  
+```yaml
+name: Babilema
+  uses:
+  babilema/babilema@v0.1.0
+    with:
+      config: .babilema.yml
+```
 
 The default configuration file would look like this (if it wasn't built in Go):
 
@@ -77,6 +84,8 @@ file.
 - [x] Add support for custom templates
 - [x] Add support for custom themes (CSS)
 - [ ] Add support for custom scripts (JS)
+- [ ] Add "related articles" section generator
+- [ ] Handle `index.html` file
 - [ ] Add testing blog on this repo
 - [ ] Add support for custom metadata
 - [ ] Use goroutines to speed up the process
