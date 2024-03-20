@@ -129,24 +129,31 @@ func extractMarkdown(content []byte) ([]byte, error) {
 		return content, nil
 	}
 
+	hasReachedEndOfHeader := false
 	endOfHeader := 1
 	for {
 		if endOfHeader >= len(lines) {
-			return nil, errors.New("no closing --- found in metadata")
+			err := errors.New("no closing --- found in metadata")
+			if hasReachedEndOfHeader {
+				err = errors.New("blog post has no content")
+			}
+
+			return nil, err
 		}
 
 		if lines[endOfHeader] == "---" {
-			break
+			hasReachedEndOfHeader = true
 		}
 
 		endOfHeader++
+
+		// Removing extra new lines after metadata header
+		if hasReachedEndOfHeader && lines[endOfHeader] != "" {
+			break
+		}
 	}
 
-	if lines[endOfHeader+1] == "" {
-		endOfHeader++
-	}
-
-	return []byte(strings.Join(lines[endOfHeader+1:], "\n")), nil
+	return []byte(strings.Join(lines[endOfHeader:], "\n")), nil
 }
 
 func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
