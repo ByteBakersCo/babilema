@@ -22,7 +22,8 @@ func TestGenerate(t *testing.T) {
 	parsedFiles := []parser.ParsedIssue{
 		{
 			Metadata: parser.Metadata{
-				Title: "Test Title",
+				Title:        "Test Title",
+				PageSubtitle: "Website name",
 			},
 			Content: template.HTML("<h1>Test HTML</h1>"),
 		},
@@ -37,7 +38,7 @@ func TestGenerate(t *testing.T) {
 			TemplateFooterFilePath: "./test-data/footer.html",
 			OutputDir:              "./test-data",
 			CSSDir:                 "./test-data",
-			BlogPostIssuePrefix:         "[BLOG]",
+			BlogPostIssuePrefix:    "[BLOG]",
 			WebsiteURL:             "http://localhost:8080",
 		},
 		&buf,
@@ -49,7 +50,7 @@ func TestGenerate(t *testing.T) {
 	output := buf.String()
 
 	expectedOutput := `<head>
-		<title>Test Title</title>
+		<title>Test Title - Website name</title>
 
 
 		<link rel="stylesheet" type="text/css" href="test-data/css/bar.css">

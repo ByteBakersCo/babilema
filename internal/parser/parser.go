@@ -18,16 +18,18 @@ import (
 )
 
 type Metadata struct {
-	Description string
-	Keywords    []string
-	Author      string
-	Title       string
-	Slug        string
-	Image       string
-	Publisher   string
-	Logo        string
-	Tags        []string
-	URL         string
+	Title        string // required
+	Slug         string // required
+	PageSubtitle string
+	Description  string
+	Keywords     []string
+	Author       string
+	Image        string
+	Publisher    string
+	Tags         []string
+
+	// Determined from configuration file
+	URL string
 
 	// Determined at runtime
 	DatePublished time.Time

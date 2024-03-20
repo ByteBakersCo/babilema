@@ -14,7 +14,9 @@
     <meta name="author" content="{{.Metadata.Author}}">
     {{end}}
     <meta name="robots" content="index, follow">
-    <title>{{.Metadata.Title}}</title>
+    <title>
+        {{.Metadata.Title}}{{if .Metadata.PageSubtitle}} - {{.Metadata.PageSubtitle}}{{end}}
+    </title>
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -70,12 +72,6 @@
         "publisher": {
             "@type": "Organization",
             "name": "{{.Metadata.Publisher}}",
-        {{if .Metadata.Logo}}
-            "logo": {
-                "@type": "ImageObject",
-                "url": "{{.Metadata.Logo}}"
-            }
-        {{end}}
         },
         {{end}}
         "datePublished": "{{.Metadata.DatePublished}}",

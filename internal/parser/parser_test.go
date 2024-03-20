@@ -12,14 +12,15 @@ import (
 
 func mockIssue() github.Issue {
 	body := `---
+Title = "Test post"
+Slug = "test-post"
+PageSubtitle = "Website name"
 Description = "This is a test post for Babilema"
 Keywords = ["test", "post", "babilema"]
 Author = "Babilema team"
-Title = "Test post"
-Slug = "test-post"
 Image = "test-post.jpg"
 Publisher = "Babilema team"
-Logo = "babilema-logo.png"
+Logo = "babilema-logo.png" # does not exist
 tags = ["test", "post", "babilema"]
 URL = "example.com"
 ---
@@ -72,14 +73,14 @@ This is a simple test post for Babilema`)
 
 func TestExtractMetadata(t *testing.T) {
 	expected := Metadata{
+		Title:         "Test post",
+		Slug:          "test-post",
+		PageSubtitle:  "Website name",
 		Description:   "This is a test post for Babilema",
 		Keywords:      []string{"test", "post", "babilema"},
 		Author:        "Babilema team",
-		Title:         "Test post",
-		Slug:          "test-post",
 		Image:         "test-post.jpg",
 		Publisher:     "Babilema team",
-		Logo:          "babilema-logo.png",
 		Tags:          []string{"test", "post", "babilema"},
 		URL:           "example.com",
 		DatePublished: time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
