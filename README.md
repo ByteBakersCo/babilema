@@ -29,12 +29,15 @@ babilema/babilema@v0.1.0 with: config: .babilema.yml ```
 
 The default configuration file would look like this (if it wasn't built in Go):
 
-```toml website_url = "http://localhost:8080" blog_post_issue_prefix: "[BLOG]"
-output_dir = "{repo_root}/blog" template_post_file_path =
-"{repo_root}/blog/templates/post.html" template_header_file_path =
-"{repo_root}/blog/templates/header.html" templateFooterFilePath =
-"{repo_root}/blog/templates/footer.html" css_dir =
-"{repo_root}/blog/templates/css"```
+```toml 
+website_url = "http://localhost:8080" # The URL of your website
+blog_post_issue_prefix: "[BLOG]" # The prefix of your blog post issues title
+output_dir = "{repo_root}/blog" # The directory where the generated html files will be saved
+template_post_file_path = "{repo_root}/blog/templates/post.html"
+template_header_file_path = "{repo_root}/blog/templates/header.html"
+templateFooterFilePath = "{repo_root}/blog/templates/footer.html"
+css_dir = "{repo_root}/blog/templates/css" # The directory where the CSS files are stored (if any)
+```
 
 **Don't forget to at least disallow your templates directory path in your
 robots.txt file**
