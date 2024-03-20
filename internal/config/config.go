@@ -1,12 +1,13 @@
 package config
 
 import (
-	"fmt"
 	"log"
+	"path/filepath"
 	"reflect"
 	"strings"
 
 	"github.com/BurntSushi/toml"
+
 	"github.com/ByteBakersCo/babilema/internal/utils"
 )
 
@@ -46,8 +47,7 @@ func trimPath(path string) string {
 
 func fillEmptyConfigFields(cfg Config) Config {
 	cfg.OutputDir = trimPath(cfg.OutputDir)
-	cfg.OutputDir = fmt.Sprintf("%s/%s", utils.RootDir(), cfg.OutputDir)
-	cfg.OutputDir = strings.TrimSuffix(cfg.OutputDir, "/")
+	cfg.OutputDir = filepath.Join(utils.RootDir(), cfg.OutputDir)
 
 	defaultCfg := defaultConfig(cfg.OutputDir)
 
@@ -65,6 +65,29 @@ func fillEmptyConfigFields(cfg Config) Config {
 	return cfg
 }
 
+func fixPaths(cfg Config) Config {
+	cfg.TemplatePostFilePath = trimPath(cfg.TemplatePostFilePath)
+	cfg.TemplateHeaderFilePath = trimPath(cfg.TemplateHeaderFilePath)
+	cfg.TemplateFooterFilePath = trimPath(cfg.TemplateFooterFilePath)
+	cfg.CSSDir = trimPath(cfg.CSSDir)
+	cfg.OutputDir = trimPath(cfg.OutputDir)
+	cfg.TemplatePostFilePath = filepath.Join(
+		utils.RootDir(),
+		cfg.TemplatePostFilePath,
+	)
+	cfg.TemplateHeaderFilePath = filepath.Join(
+		utils.RootDir(),
+		cfg.TemplateHeaderFilePath,
+	)
+	cfg.TemplateFooterFilePath = filepath.Join(
+		utils.RootDir(),
+		cfg.TemplateFooterFilePath,
+	)
+	cfg.CSSDir = filepath.Join(utils.RootDir(), cfg.CSSDir)
+	cfg.OutputDir = filepath.Join(utils.RootDir(), cfg.OutputDir)
+	return cfg
+}
+
 func LoadConfig(configFilePath string) (Config, error) {
 	cfg := Config{}
 	_, err := toml.DecodeFile(configFilePath, &cfg)
@@ -73,8 +96,9 @@ func LoadConfig(configFilePath string) (Config, error) {
 	}
 
 	cfg = fillEmptyConfigFields(cfg)
+	cfg = fixPaths(cfg)
 
-	log.Printf("Config loaded:\n %+v", cfg)
+	log.Println(utils.FormatStruct(cfg, "Config loaded:"))
 
 	return cfg, nil
 }
