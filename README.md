@@ -13,22 +13,22 @@ front matter should be at the very top of the file and start/end with `---`.
 The following fields are currently supported:
 
 ```go
-Title       string    // REQUIRED - <title>...</title> + post title
-Slug        string    // REQUIRED - The URL and filename slug
-PageSubtitle string   // added to the <title> tag. e.g. "<Blog post title> - My super blog"
-Description string    // <meta name="description" content="...">
-Keywords    []string  // <meta name="keywords" content="...">
-Author      string    // <meta name="author" content="..."> + post author
-Image       string    // Social media/SEO image
-Publisher   string    // <meta name="publisher" content="...">
-Tags        []string  // Will be used to reference other blog posts
-```
+struct {
+    Title       string    // REQUIRED - <title>...</title> + post title
+    Slug        string    // REQUIRED - The URL and filename slug
+    PageSubtitle string   // added to the <title> tag. e.g. "<Blog post title> - My super blog"
+    Description string    // <meta name="description" content="...">
+    Keywords    []string  // <meta name="keywords" content="...">
+    Author      string    // <meta name="author" content="..."> + post author
+    Image       string    // Social media/SEO image
+    Publisher   string    // <meta name="publisher" content="...">
+    Tags        []string  // Will be used to reference other blog posts
 
-The following fields will be set automatically at runtime by Babilema:
-```go 
-URL           string  // infered from the configuration file (see below)
-DatePublished string  // infered from the issue creation date
-DateModified  string  // infered from the issue last update date
+    // The following fields will be set automatically at runtime by Babilema:
+    URL           string  // infered from the configuration file (see below)
+    DatePublished string  // infered from the issue creation date
+    DateModified  string  // infered from the issue last update date
+}
 ```
 
 You can find an example of a blog post in the issues
