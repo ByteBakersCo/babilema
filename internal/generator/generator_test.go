@@ -3,10 +3,20 @@ package generator
 import (
 	"bytes"
 	"html/template"
+	"strings"
 	"testing"
 
+	"github.com/ByteBakersCo/babilema/internal/config"
 	"github.com/ByteBakersCo/babilema/internal/parser"
 )
+
+func normalize(s string) string {
+	lines := strings.Split(s, "\n")
+	for i, line := range lines {
+		lines[i] = strings.TrimSpace(line)
+	}
+	return strings.Join(lines, "\n")
+}
 
 func TestGenerate(t *testing.T) {
 	parsedFiles := []parser.ParsedIssue{
@@ -21,8 +31,15 @@ func TestGenerate(t *testing.T) {
 	var buf bytes.Buffer
 	err := GenerateBlogPosts(
 		parsedFiles,
-		"",
-		"./test-post.html",
+		config.Config{
+			TemplatePostFilePath:   "./test-data/post.html",
+			TemplateHeaderFilePath: "./test-data/header.html",
+			TemplateFooterFilePath: "./test-data/footer.html",
+			OutputDir:              "./test-data",
+			CSSDir:                 "./test-data",
+			BlogPostIssuePrefix:         "[BLOG]",
+			WebsiteURL:             "http://localhost:8080",
+		},
 		&buf,
 	)
 	if err != nil {
@@ -32,12 +49,29 @@ func TestGenerate(t *testing.T) {
 	output := buf.String()
 
 	expectedOutput := `<head>
-    <title>Test Title</title>
-</head>
+		<title>Test Title</title>
 
-<body><h1>Test HTML</h1></body>
+
+		<link rel="stylesheet" type="text/css" href="test-data/css/bar.css">
+
+	<link rel="stylesheet" type="text/css" href="test-data/foo.css">
+
+
+	</head>
+
+	<body>
+		<header><div>Test Header</div>
+	</header>
+		<h1>Test HTML</h1>
+		<footer><div>Test Footer</div>
+	</footer>
+	</body>
 `
-	if output != expectedOutput {
-		t.Errorf("Expected output to be '%s', got '%s'", expectedOutput, output)
+	if normalize(output) != normalize(expectedOutput) {
+		t.Errorf(
+			"Expected output to be '%s', got '%s'",
+			normalize(expectedOutput),
+			normalize(output),
+		)
 	}
 }

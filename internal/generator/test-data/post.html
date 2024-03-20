@@ -1,0 +1,14 @@
+<head>
+    <title>{{.Metadata.Title}}</title>
+    {{if .CSSLinks}}
+    {{range .CSSLinks}}
+    <link rel="stylesheet" type="text/css" href="{{.}}">
+    {{end}}
+    {{end}}
+</head>
+
+<body>
+    <header>{{.Header}}</header>
+    {{.Content}}
+    <footer>{{.Footer}}</footer>
+</body>
