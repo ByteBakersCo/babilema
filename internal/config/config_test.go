@@ -10,7 +10,7 @@ func TestLoadConfig(t *testing.T) {
 	root := utils.RootDir()
 	expected := Config{
 		WebsiteURL:             "babilema.github.io",
-		BlogPostIssuePrefix:         "[BLOG]",
+		BlogPostIssuePrefix:    "[BLOG]",
 		TemplatePostFilePath:   root + "/templates/post.html",
 		TemplateHeaderFilePath: root + "/templates/header.html",
 		TemplateFooterFilePath: root + "/templates/footer.html",
@@ -18,12 +18,15 @@ func TestLoadConfig(t *testing.T) {
 		OutputDir:              root,
 	}
 
-	cfg, err := LoadConfig(root + DefaultConfigPath)
+	actual, err := LoadConfig(root + DefaultConfigPath)
 	if err != nil {
 		t.Error(err)
 	}
 
-	if expected != cfg {
-		t.Errorf("expected %+v, got %+v", expected, cfg)
+	if expected != actual {
+		t.Error(
+			utils.FormatStruct(expected, "Expected output to be"),
+			utils.FormatStruct(actual, "\ngot"),
+		)
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ByteBakersCo/babilema/internal/config"
+	"github.com/ByteBakersCo/babilema/internal/utils"
 )
 
 func cleanup() {
@@ -55,6 +56,9 @@ func TestParseHistoryFile(t *testing.T) {
 	}
 
 	if !maps.Equal(expected, actual) {
-		t.Errorf("expected %+v, got %+v", expected, actual)
+		t.Error(
+			utils.FormatStruct(expected, "Expected output to be"),
+			utils.FormatStruct(actual, "\ngot"),
+		)
 	}
 }

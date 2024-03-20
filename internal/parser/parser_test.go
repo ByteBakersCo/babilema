@@ -6,8 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ByteBakersCo/babilema/internal/config"
 	"github.com/google/go-github/github"
+
+	"github.com/ByteBakersCo/babilema/internal/config"
+	"github.com/ByteBakersCo/babilema/internal/utils"
 )
 
 func mockIssue() github.Issue {
@@ -24,6 +26,8 @@ Logo = "babilema-logo.png" # does not exist
 tags = ["test", "post", "babilema"]
 URL = "example.com"
 ---
+
+
 
 # Test post
 
@@ -64,9 +68,11 @@ This is a simple test post for Babilema`)
 
 	if string(actual) != string(expected) {
 		t.Errorf(
-			"Expected output to be\n %v\n\t------\n\tgot\n %v",
-			(expected),
-			(actual),
+			"Expected output to be\n %v\n\t------\n\tgot\n %v\n\n\n\n%s\n\t------\n\t%s\n",
+			expected,
+			actual,
+			string(expected),
+			string(actual),
 		)
 	}
 }
@@ -93,17 +99,16 @@ func TestExtractMetadata(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf(
-			"Expected output to be %+v\n------\ngot %+v",
-			expected,
-			actual,
+		t.Error(
+			utils.FormatStruct(expected, "Expected output to be"),
+			utils.FormatStruct(actual, "\ngot"),
 		)
 	}
 
 	// Sad path
 	badActual, err := extractMetadata(badMockIssue(), config.Config{})
 	if err == nil {
-		t.Errorf("Expected error, got %+v", badActual)
+		t.Error(utils.FormatStruct(badActual, "Expected error, got"))
 	}
 	missingMetadata := []string{
 		"URL",
@@ -122,7 +127,7 @@ func TestExtractMetadata(t *testing.T) {
 		config.Config{WebsiteURL: "example.com"},
 	)
 	if err == nil {
-		t.Errorf("Expected error, got %+v", badActualWithURL)
+		t.Error(utils.FormatStruct(badActualWithURL, "Expected error, got"))
 	}
 
 	if strings.Contains(err.Error(), "URL") {
