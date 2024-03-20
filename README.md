@@ -6,7 +6,7 @@ Babilema (Esperanto for _garrulous_) is a minimalist static blog generator that
 turns GitHub issues into blog posts. It is intended to be used as a GitHub
 action.
 
-### Markdown metadata structure
+### Markdown metadata structure (AKA front matter)
 
 Input issues should be written in markdown with a **TOML** front matter. The
 front matter should contain the following fields:
