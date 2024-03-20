@@ -1,6 +1,8 @@
 # Babilema
 
-> This is a work in progress  
+
+> 🚧 This is a work in progress 🚧  
+
 
 Babilema (Esperanto for _garrulous_) is a minimalist static blog generator that
 turns GitHub issues into blog posts.  
