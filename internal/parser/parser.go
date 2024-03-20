@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	"html/template"
+	"log"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/BurntSushi/toml"
 	"github.com/ByteBakersCo/babilema/internal/config"
+	"github.com/ByteBakersCo/babilema/internal/history"
 	"github.com/gomarkdown/markdown"
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
@@ -27,7 +29,7 @@ type Metadata struct {
 	Tags        []string
 	URL         string
 
-	// Determined during pre-processing
+	// Determined at runtime
 	DatePublished time.Time
 	DateModified  time.Time
 }
@@ -145,16 +147,18 @@ func extractMarkdown(content []byte) ([]byte, error) {
 	return []byte(strings.Join(lines[endOfHeader+1:], "\n")), nil
 }
 
-func ParseIssues() ([]ParsedIssue, error) {
+func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
+	ghToken := os.Getenv("GITHUB_TOKEN")
+	if ghToken == "" {
+		return nil, errors.New("GITHUB_TOKEN not set")
+	}
+
 	ctx := context.Background()
-	tokenSource := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")},
-	)
+	tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: ghToken})
 	tokenClient := oauth2.NewClient(ctx, tokenSource)
 	client := github.NewClient(tokenClient)
 
 	repo := os.Getenv("GITHUB_REPOSITORY")
-
 	if repo == "" {
 		return nil, errors.New("GITHUB_REPOSITORY not set")
 	}
@@ -167,14 +171,14 @@ func ParseIssues() ([]ParsedIssue, error) {
 		return nil, err
 	}
 
-	cfg, err := config.LoadConfig()
+	postsHistory, err := history.ParseHistoryFile(cfg)
 	if err != nil {
 		return nil, err
 	}
 
 	var parsedIssues []ParsedIssue
 	for _, issue := range issues {
-		if !strings.HasPrefix(issue.GetTitle(), cfg.BlogPostPrefix) {
+		if !strings.HasPrefix(issue.GetTitle(), cfg.BlogPostIssuePrefix) {
 			continue
 		}
 
@@ -200,6 +204,16 @@ func ParseIssues() ([]ParsedIssue, error) {
 			return nil, err
 		}
 
+		if _, ok := postsHistory[metadata.Slug]; ok {
+			isUpdated := issue.GetUpdatedAt().After(metadata.DateModified)
+			if !isUpdated {
+				continue
+			}
+
+			postsHistory[metadata.Slug] = issue.GetUpdatedAt().
+				Format(time.RFC3339)
+		}
+
 		content, err := extractMarkdown([]byte(issue.GetBody()))
 		if err != nil {
 			return nil, err
@@ -212,6 +226,10 @@ func ParseIssues() ([]ParsedIssue, error) {
 			Metadata: metadata,
 		})
 	}
+
+	log.Printf("Found %d blog posts to generate\n", len(parsedIssues))
+
+	history.UpdateHistoryFile(postsHistory, cfg)
 
 	return parsedIssues, nil
 }
