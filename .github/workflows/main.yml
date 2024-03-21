@@ -22,7 +22,7 @@ jobs:
       run: docker build . --file Dockerfile --tag babilema
 
     - name: Run tests
-      run: docker run --rm babilema go test ./...
+      run: docker run --rm --entrypoint go babilema test ./...
 
     - name: Run program
       env:
