@@ -14,7 +14,7 @@ import (
 func main() {
 	configFilePath := flag.String(
 		"config",
-		utils.RootDir()+"/.babilema.yml",
+		utils.RootDir()+"/.babilema.toml",
 		"Path to the config file",
 	)
 
