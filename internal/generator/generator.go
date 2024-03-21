@@ -96,7 +96,25 @@ func generateBlogIndexPage(
 	cfg config.Config,
 	testOutputWriter io.Writer, // for testing purposes
 ) error {
+	data := struct {
+		Header   template.HTML
+		Footer   template.HTML
+		Articles []article
+	}{
+		Articles: articles,
+	}
+
 	indexTemplate, err := template.ParseFiles(cfg.TemplateIndexFilePath)
+	if err != nil {
+		return err
+	}
+
+	data.Header, err = extractHTML(cfg.TemplateHeaderFilePath)
+	if err != nil {
+		return err
+	}
+
+	data.Footer, err = extractHTML(cfg.TemplateFooterFilePath)
 	if err != nil {
 		return err
 	}
@@ -117,8 +135,8 @@ func generateBlogIndexPage(
 		writer = outputFile
 	}
 
-	log.Println("Generating blog index page")
-	err = indexTemplate.Execute(writer, articles)
+	log.Println("Generating blog index page...")
+	err = indexTemplate.Execute(writer, data)
 	if err != nil {
 		return err
 	}

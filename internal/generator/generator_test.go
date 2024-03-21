@@ -113,8 +113,10 @@ func TestGenerateBlogIndexPage(t *testing.T) {
 	err := generateBlogIndexPage(
 		articles,
 		config.Config{
-			TemplateIndexFilePath: "./test-data/index.html",
-			OutputDir:             "./test-data",
+			TemplateIndexFilePath:  "./test-data/index.html",
+			TemplateHeaderFilePath: "./test-data/header.html",
+			TemplateFooterFilePath: "./test-data/footer.html",
+			OutputDir:              "./test-data",
 		},
 		&buf,
 	)
@@ -127,6 +129,8 @@ func TestGenerateBlogIndexPage(t *testing.T) {
 	expectedOutput := `<html>
         
         <body>
+        <header><div>Test Header</div>
+        </header>
         
         <article>
         <a href="example.com">
@@ -148,10 +152,12 @@ func TestGenerateBlogIndexPage(t *testing.T) {
         <a href="example.com"><img src="" alt="Test Title 2" /></a>
         </article>
         
+        <footer><div>Test Footer</div>
+        </footer>
         </body>
         
         </html>
-`
+		`
 	if normalize(output) != normalize(expectedOutput) {
 		t.Errorf(
 			"Expected output to be '%s', got '%s'",

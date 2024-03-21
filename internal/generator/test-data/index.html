@@ -1,7 +1,8 @@
 <html>
 
 <body>
-    {{range .}}
+    <header>{{.Header}}</header>
+    {{range .Articles}}
     <article>
         <a href="{{.URL}}">
             <h1>{{.Title}}</h1>
@@ -12,6 +13,7 @@
         <a href="{{.URL}}"><img src="{{.Image}}" alt="{{.Title}}" /></a>
     </article>
     {{end}}
+    <footer>{{.Footer}}</footer>
 </body>
 
 </html>
