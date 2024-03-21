@@ -19,6 +19,7 @@ type Config struct {
 	TemplatePostFilePath   string `toml:"template_post_file_path"`
 	TemplateHeaderFilePath string `toml:"template_header_file_path"`
 	TemplateFooterFilePath string `toml:"template_footer_file_path"`
+	TemplateIndexFilePath  string `toml:"template_index_file_path"`
 	CSSDir                 string `toml:"css_dir"`
 	OutputDir              string `toml:"output_dir"`
 }
@@ -30,6 +31,7 @@ func defaultConfig(root string) Config {
 		TemplatePostFilePath:   root + "/templates/post.html",
 		TemplateHeaderFilePath: root + "/templates/header.html",
 		TemplateFooterFilePath: root + "/templates/footer.html",
+		TemplateIndexFilePath:  root + "/templates/index.html",
 		CSSDir:                 root + "/templates/css",
 		OutputDir:              root,
 	}
@@ -62,6 +64,7 @@ func fillEmptyConfigFields(cfg Config) Config {
 			cfgVal.Field(i).Set(defaultVal.Field(i))
 		}
 	}
+
 	return cfg
 }
 
@@ -69,6 +72,7 @@ func fixPaths(cfg Config) Config {
 	cfg.TemplatePostFilePath = trimPath(cfg.TemplatePostFilePath)
 	cfg.TemplateHeaderFilePath = trimPath(cfg.TemplateHeaderFilePath)
 	cfg.TemplateFooterFilePath = trimPath(cfg.TemplateFooterFilePath)
+	cfg.TemplateIndexFilePath = trimPath(cfg.TemplateIndexFilePath)
 	cfg.CSSDir = trimPath(cfg.CSSDir)
 	cfg.OutputDir = trimPath(cfg.OutputDir)
 	cfg.TemplatePostFilePath = filepath.Join(
@@ -83,8 +87,13 @@ func fixPaths(cfg Config) Config {
 		utils.RootDir(),
 		cfg.TemplateFooterFilePath,
 	)
+	cfg.TemplateIndexFilePath = filepath.Join(
+		utils.RootDir(),
+		cfg.TemplateIndexFilePath,
+	)
 	cfg.CSSDir = filepath.Join(utils.RootDir(), cfg.CSSDir)
 	cfg.OutputDir = filepath.Join(utils.RootDir(), cfg.OutputDir)
+
 	return cfg
 }
 

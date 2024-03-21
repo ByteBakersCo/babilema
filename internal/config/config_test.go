@@ -14,6 +14,7 @@ func TestLoadConfig(t *testing.T) {
 		TemplatePostFilePath:   root + "/templates/post.html",
 		TemplateHeaderFilePath: root + "/templates/header.html",
 		TemplateFooterFilePath: root + "/templates/footer.html",
+		TemplateIndexFilePath:  root + "/templates/index.html",
 		CSSDir:                 root + "/templates/css",
 		OutputDir:              root,
 	}
