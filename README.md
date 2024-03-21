@@ -103,7 +103,7 @@ file.
 - [x] Add support for custom themes (CSS)
 - [ ] Add support for custom scripts (JS)
 - [ ] Add "related articles" section generator
-- [ ] Handle `index.html` file
+- [x] Handle `index.html` file
 - [ ] Add testing blog on this repo
 - [ ] Add support for custom metadata
 - [ ] Use goroutines to speed up the process

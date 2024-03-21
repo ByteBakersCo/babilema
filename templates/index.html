@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{if .Metadata.Description}}
+    <meta name="description" content="{{.Metadata.Description}}">
+    {{end}}
+    {{if .Metadata.Keywords}}
+    <meta name="keywords" content="{{.Metadata.Keywords}}">
+    {{end}}
+    {{if .Metadata.Author}}
+    <meta name="author" content="{{.Metadata.Author}}">
+    {{end}}
+    <meta name="robots" content="index, follow">
+    <title>
+        {{.Metadata.Title}}{{if .Metadata.PageSubtitle}} - {{.Metadata.PageSubtitle}}{{end}}
+    </title>
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{.URL}}">
+    <meta property="og:title" content="{{.Title}}{{if .Metadata.PageSubtitle}} - {{.Metadata.PageSubtitle}}{{end}}">
+    {{if .Preview}}
+    <meta property="og:description" content="{{.Preview}}">
+    {{end}}
+    {{if .Image}}
+    <meta property="og:image" content="{{.Image}}">
+    {{end}}
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{.URL}}">
+    <meta property="twitter:title"
+        content="{{.Title}}{{if .Metadata.PageSubtitle}} - {{.Metadata.PageSubtitle}}{{end}}">
+    {{if .Preview}}
+    <meta property="twitter:description" content="{{.Preview}}">
+    {{end}}
+    {{if .Image}}
+    <meta property="twitter:image" content="{{.Image}}">
+    {{end}}
+
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+
+<body>
+    {{if .Header}}
+    <header>{{.Header}}</header>
+    {{end}}
+    <main id="content">
+        {{range .}}
+        <article>
+            <div class="post-image">
+                <a href="{{.URL}}"><img src="{{.Image}}" alt="{{.Title}}" /></a>
+            </div>
+            <div class="post-data">
+                <h2><a href="{{.URL}}">{{.Title}}</a></h2>
+                <p>By {{.Author}} on {{.DatePublished.Format "January 2, 2006"}}</p>
+                <p>{{.Preview}}</p>
+            </div>
+        </article>
+        {{end}}
+    </main>
+    {{if .Footer}}
+    <footer>{{.Footer}}</footer>
+    {{end}}
+</body>
+
+</html>
