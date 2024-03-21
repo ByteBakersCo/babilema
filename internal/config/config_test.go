@@ -10,7 +10,7 @@ func TestLoadConfig(t *testing.T) {
 	root := utils.RootDir()
 	expected := Config{
 		WebsiteURL:             "https://babilema.github.io",
-		BlogTitle:              "Babilema Static Generator",
+		BlogTitle:              "Babilema: A Minimalist Static Blog Generator",
 		BlogPostIssuePrefix:    "[BLOG]",
 		TemplatePostFilePath:   root + "/templates/post.html",
 		TemplateHeaderFilePath: root + "/templates/header.html",
