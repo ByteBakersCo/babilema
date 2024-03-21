@@ -1,2 +1,3 @@
-website_url = "babilema.github.io"
-output_dir = "."
+website_url = "https://babilema.github.io"
+blog_title = "Babilema Static Generator"
+output_dir = "."                           # This could be ommited or just be an empty string
