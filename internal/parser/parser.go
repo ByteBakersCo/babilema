@@ -238,7 +238,9 @@ func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
 
 	log.Printf("Found %d blog posts to generate\n", len(parsedIssues))
 
-	history.UpdateHistoryFile(postsHistory, cfg)
+	if len(parsedIssues) > 0 {
+		history.UpdateHistoryFile(postsHistory, cfg)
+	}
 
 	return parsedIssues, nil
 }

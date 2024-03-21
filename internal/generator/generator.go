@@ -149,6 +149,10 @@ func GenerateBlogPosts(
 	cfg config.Config,
 	testOutputWriter io.Writer, // for testing purposes
 ) error {
+	if len(parsedIssues) == 0 {
+		return nil
+	}
+
 	postTemplate, err := template.ParseFiles(cfg.TemplatePostFilePath)
 	if err != nil {
 		return err
