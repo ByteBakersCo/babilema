@@ -1,7 +1,6 @@
 package config
 
 import (
-	"log"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -106,8 +105,6 @@ func LoadConfig(configFilePath string) (Config, error) {
 
 	cfg = fillEmptyConfigFields(cfg)
 	cfg = fixPaths(cfg)
-
-	log.Println(utils.FormatStruct(cfg, "Config loaded:"))
 
 	return cfg, nil
 }
