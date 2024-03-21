@@ -1,0 +1,17 @@
+<html>
+
+<body>
+    {{range .}}
+    <article>
+        <a href="{{.URL}}">
+            <h1>{{.Title}}</h1>
+        </a>
+        <p>{{.Preview}}</p>
+        <p>Author: {{.Author}}</p>
+        <p>Published: {{.DatePublished}}</p>
+        <a href="{{.URL}}"><img src="{{.Image}}" alt="{{.Title}}" width="500" height="300"></a>
+    </article>
+    {{end}}
+</body>
+
+</html>
