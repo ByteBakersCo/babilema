@@ -4,42 +4,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {{if .Metadata.Description}}
-    <meta name="description" content="{{.Metadata.Description}}">
-    {{end}}
-    {{if .Metadata.Keywords}}
-    <meta name="keywords" content="{{.Metadata.Keywords}}">
-    {{end}}
-    {{if .Metadata.Author}}
-    <meta name="author" content="{{.Metadata.Author}}">
-    {{end}}
+    <meta name="description" content="Babilema (Esperanto for garrulous) is a minimalist static blog generator that turns GitHub issues into blog posts. It is intended to be used as a GitHub action.
+">
+    <meta name="keywords" content="blog,static,generator,golang,opensource">
+    <meta name="author" content="Arthur Wallendorff">
     <meta name="robots" content="index, follow">
-    <title>
-        {{.Metadata.Title}}{{if .Metadata.PageSubtitle}} - {{.Metadata.PageSubtitle}}{{end}}
-    </title>
+    <title>Babilema - Turn your GitHub issues into blog posts!</title>
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="{{.URL}}">
-    <meta property="og:title" content="{{.Title}}{{if .Metadata.PageSubtitle}} - {{.Metadata.PageSubtitle}}{{end}}">
-    {{if .Preview}}
+    <meta property="og:url" content="https://babilema.github.io" <meta property="og:title"
+        content="Babilema - Turn your GitHub issues into blog posts!">
     <meta property="og:description" content="{{.Preview}}">
-    {{end}}
-    {{if .Image}}
-    <meta property="og:image" content="{{.Image}}">
-    {{end}}
+    <!-- TODO: add image -->
+    <!-- <meta property="og:image" content=""> -->
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="{{.URL}}">
-    <meta property="twitter:title"
-        content="{{.Title}}{{if .Metadata.PageSubtitle}} - {{.Metadata.PageSubtitle}}{{end}}">
-    {{if .Preview}}
-    <meta property="twitter:description" content="{{.Preview}}">
-    {{end}}
-    {{if .Image}}
-    <meta property="twitter:image" content="{{.Image}}">
-    {{end}}
+    <meta property="twitter:url" content="https://babilema.github.io">
+    <meta property="twitter:title" content="Babilema - Turn your GitHub issues into blog posts!">
+    <meta property="twitter:description" content="Babilema - Turn your GitHub issues into blog posts!">
+    <!-- TODO: add image -->
+    <!-- <meta property="twitter:image" content=""> -->
 
     <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
