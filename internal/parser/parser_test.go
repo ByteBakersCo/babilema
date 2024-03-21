@@ -16,7 +16,7 @@ func mockIssue() github.Issue {
 	body := `---
 Title = "Test post"
 Slug = "test-post"
-PageSubtitle = "Website name"
+BlogTitle = "Overwritten Website name"
 Description = "This is a test post for Babilema"
 Keywords = ["test", "post", "babilema"]
 Author = "Babilema team"
@@ -24,7 +24,6 @@ Image = "test-post.jpg"
 Publisher = "Babilema team"
 Logo = "babilema-logo.png" # does not exist
 tags = ["test", "post", "babilema"]
-URL = "example.com"
 ---
 
 
@@ -81,19 +80,25 @@ func TestExtractMetadata(t *testing.T) {
 	expected := Metadata{
 		Title:         "Test post",
 		Slug:          "test-post",
-		PageSubtitle:  "Website name",
+		BlogTitle:     "Overwritten Website name",
 		Description:   "This is a test post for Babilema",
 		Keywords:      []string{"test", "post", "babilema"},
 		Author:        "Babilema team",
 		Image:         "test-post.jpg",
 		Publisher:     "Babilema team",
 		Tags:          []string{"test", "post", "babilema"},
-		URL:           "example.com",
+		URL:           "example.com/test-post",
 		DatePublished: time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
 		DateModified:  time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
 	}
 
-	actual, err := extractMetadata(mockIssue(), config.Config{})
+	actual, err := extractMetadata(
+		mockIssue(),
+		config.Config{
+			BlogTitle:  "This should be ignored",
+			WebsiteURL: "example.com",
+		},
+	)
 	if err != nil {
 		t.Errorf("extractMetadata failed: %s", err)
 	}
@@ -111,7 +116,6 @@ func TestExtractMetadata(t *testing.T) {
 		t.Error(utils.FormatStruct(badActual, "Expected error, got"))
 	}
 	missingMetadata := []string{
-		"URL",
 		"Slug",
 		"Title",
 	}
@@ -120,17 +124,5 @@ func TestExtractMetadata(t *testing.T) {
 		if !strings.Contains(err.Error(), field) {
 			t.Errorf("Expected error to contain '%s', got '%s'", field, err)
 		}
-	}
-
-	badActualWithURL, err := extractMetadata(
-		badMockIssue(),
-		config.Config{WebsiteURL: "example.com"},
-	)
-	if err == nil {
-		t.Error(utils.FormatStruct(badActualWithURL, "Expected error, got"))
-	}
-
-	if strings.Contains(err.Error(), "URL") {
-		t.Errorf("Expected error NOT to contain 'URL', got '%s'", err)
 	}
 }

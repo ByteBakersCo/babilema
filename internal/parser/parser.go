@@ -3,6 +3,7 @@ package parser
 import (
 	"context"
 	"errors"
+	"fmt"
 	"html/template"
 	"log"
 	"os"
@@ -18,17 +19,17 @@ import (
 )
 
 type Metadata struct {
-	Title        string // required
-	Slug         string // required
-	PageSubtitle string
-	Description  string
-	Keywords     []string
-	Author       string
-	Image        string
-	Publisher    string
-	Tags         []string
+	Title       string // required
+	Slug        string // required
+	BlogTitle   string
+	Description string
+	Keywords    []string
+	Author      string
+	Image       string
+	Publisher   string
+	Tags        []string
 
-	// Determined from configuration file
+	// Determined at runtime (WebsiteURL + Slug)
 	URL string
 
 	// Determined at runtime
@@ -54,10 +55,6 @@ func trimAllSpaces(array []string) []string {
 
 func checkRequiredMetadata(metadata Metadata) error {
 	missingFields := []string{}
-	if metadata.URL == "" {
-		missingFields = append(missingFields, "URL")
-	}
-
 	if metadata.Slug == "" {
 		missingFields = append(missingFields, "Slug")
 	}
@@ -102,19 +99,19 @@ func extractMetadata(issue github.Issue, cfg config.Config) (Metadata, error) {
 		return Metadata{}, err
 	}
 
-	createdAt := issue.GetCreatedAt()
-	updatedAt := issue.GetUpdatedAt()
-
-	metadata.DatePublished = createdAt
-	metadata.DateModified = updatedAt
-
-	if metadata.URL == "" {
-		metadata.URL = cfg.WebsiteURL
-	}
-
 	err = checkRequiredMetadata(metadata)
 	if err != nil {
 		return Metadata{}, err
+	}
+
+	metadata.DatePublished = issue.GetCreatedAt()
+	metadata.DateModified = issue.GetUpdatedAt()
+
+	// This is important, the user cannot set a different URL on their post
+	metadata.URL = fmt.Sprintf("%s/%s", cfg.WebsiteURL, metadata.Slug)
+
+	if metadata.BlogTitle == "" {
+		metadata.BlogTitle = cfg.BlogTitle
 	}
 
 	return metadata, nil

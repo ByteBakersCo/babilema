@@ -14,6 +14,7 @@ const DefaultConfigPath = "/.babilema.toml"
 
 type Config struct {
 	WebsiteURL             string `toml:"website_url"`
+	BlogTitle              string `toml:"blog_title"`
 	BlogPostIssuePrefix    string `toml:"blog_post_issue_prefix"`
 	TemplatePostFilePath   string `toml:"template_post_file_path"`
 	TemplateHeaderFilePath string `toml:"template_header_file_path"`
@@ -26,6 +27,7 @@ type Config struct {
 func defaultConfig(root string) Config {
 	return Config{
 		WebsiteURL:             "http://localhost:8080",
+		BlogTitle:              "",
 		BlogPostIssuePrefix:    "[BLOG]",
 		TemplatePostFilePath:   root + "/templates/post.html",
 		TemplateHeaderFilePath: root + "/templates/header.html",

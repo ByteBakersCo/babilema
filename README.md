@@ -1,8 +1,8 @@
 # Babilema
 
-
+  
 > 🚧 This is a work in progress 🚧  
-
+  
 
 Babilema (Esperanto for _garrulous_) is a minimalist static blog generator that
 turns GitHub issues into blog posts.  
@@ -21,10 +21,9 @@ Here's an example of a blog post issue with the currently supported metadata:
 ```toml
 ---
 # This is actual TOML so you can add comments
-website_url = "http://localhost:8080" # The URL of your website
 title = "My first blog post" # REQUIRED - <title>...</title> + post title
-slug = "my-first-blog-post"  # REQUIRED - The URL and filename slug
-page_subtitle = "My super blog" # Added to the <title> tag. Will look like <title>My first blog post - My super blog</title>
+blog_title= "My super blog" # Added to the <title> tag. Will look like <title>My first blog post - My super blog</title>
+slug = "my-first-blog-post"  # REQUIRED - The URL and filename's slug
 description = "This is my first blog post" # <meta name="description" content="...">
 keywords = ["blog", "first", "post"] # <meta name="keywords" content="...">
 author = "John Doe" # <meta name="author" content="..."> + post author
@@ -37,6 +36,8 @@ tags = ["blog", "tutorial"] # Will be used to reference other blog posts
 It uses GitHub issues as its source.  
 ```
 
+Note that `blog_title` will override the values in the configuration file if it 
+is set on a particular issue.  
 You can find an example of a blog post in the issues.  
 
 ## Configuration file
@@ -56,12 +57,13 @@ The default configuration file would look like this (if it wasn't built at runti
 
 ```toml 
 website_url = "http://localhost:8080"   # The URL of your website
+blog_title = ""                         # The title of your blog, can be overwritten per issue
 blog_post_issue_prefix = "[BLOG]"       # The prefix of your blog post issues title
 output_dir = "{repo_root}/"             # The directory where the generated html files will be saved
 template_post_file_path = "{repo_root}/{output_dir}/templates/post.html"
 template_header_file_path = "{repo_root}/{output_dir}/templates/header.html"
 template_footer_file_path = "{repo_root}/{output_dir}/templates/footer.html"
-template_index_file_path = "{repo_root}/{output_dir}/templates/index.html" # Your blog's homepage
+template_index_file_path = "{repo_root}/{output_dir}/templates/index.html" # Your blog's homepage file
 css_dir = "{repo_root}/{output_dir}/templates/css" # The directory where the CSS files are stored (if any)
 ```
 

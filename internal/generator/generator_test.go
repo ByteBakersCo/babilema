@@ -23,8 +23,8 @@ func TestGenerateBlogPosts(t *testing.T) {
 	parsedFiles := []parser.ParsedIssue{
 		{
 			Metadata: parser.Metadata{
-				Title:        "Test Title",
-				PageSubtitle: "Website name",
+				Title:     "Test Title",
+				BlogTitle: "Website name",
 			},
 			Content: template.HTML("<h1>Test HTML</h1>"),
 		},
