@@ -75,10 +75,12 @@ If you want to use a different directory for your templates, it will NOT be prec
 
 ## Usage tips
 ### Writing your own templates
+
 You can find basic example templates in the `templates` directory.  
 They contain all the relevant fields to generate a blog post and your blog's home page.  
 
 ### robots.txt
+
 **Don't forget to at least disallow your templates directory path in your
 robots.txt file**
 
@@ -87,6 +89,11 @@ e.g:
 User-agent: *
 Disallow: /blog/templates/
 ```
+
+### How can write?
+
+Only users with write access to the repository can create blog posts.  
+When parsing the issues, Babilema will only consider the ones created by users with the permission "admin" or "write".    
 
 ### History file
 
