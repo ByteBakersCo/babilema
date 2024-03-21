@@ -60,7 +60,8 @@ blog_post_issue_prefix = "[BLOG]"       # The prefix of your blog post issues ti
 output_dir = "{repo_root}/"             # The directory where the generated html files will be saved
 template_post_file_path = "{repo_root}/{output_dir}/templates/post.html"
 template_header_file_path = "{repo_root}/{output_dir}/templates/header.html"
-templateFooterFilePath = "{repo_root}/{output_dir}/templates/footer.html"
+template_footer_file_path = "{repo_root}/{output_dir}/templates/footer.html"
+template_index_file_path = "{repo_root}/{output_dir}/templates/index.html" # Your blog's homepage
 css_dir = "{repo_root}/{output_dir}/templates/css" # The directory where the CSS files are stored (if any)
 ```
 
@@ -71,6 +72,10 @@ Meaning that if you leave `output_dir` empty, it will be equal to `{repo_root}`,
 If you want to use a different directory for your templates, it will NOT be preceded by `output_dir` but only `{repo_root}`.  
 
 ## Usage tips
+### Writing your own templates
+You can find basic example templates in the `templates` directory.  
+They contain all the relevant fields to generate a blog post and your blog's home page.  
+
 ### robots.txt
 **Don't forget to at least disallow your templates directory path in your
 robots.txt file**
