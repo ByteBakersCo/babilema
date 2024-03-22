@@ -64,6 +64,7 @@ template_post_file_path = "{repo_root}/{output_dir}/templates/post.html"
 template_header_file_path = "{repo_root}/{output_dir}/templates/header.html"
 template_footer_file_path = "{repo_root}/{output_dir}/templates/footer.html"
 template_index_file_path = "{repo_root}/{output_dir}/templates/index.html" # Your blog's homepage file
+commit_message = "Babilema: generate blog"    # The commit message when generating and adding the files to your repo 
 css_dir = "{repo_root}/{output_dir}/templates/css" # The directory where the CSS files are stored (if any)
 ```
 

@@ -16,6 +16,7 @@ func TestLoadConfig(t *testing.T) {
 		TemplateHeaderFilePath: root + "/templates/header.html",
 		TemplateFooterFilePath: root + "/templates/footer.html",
 		TemplateIndexFilePath:  root + "/templates/index.html",
+		CommitMessage:          "Babilema: generate blog",
 		CSSDir:                 root + "/templates/css",
 		OutputDir:              root,
 	}

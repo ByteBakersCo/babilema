@@ -20,6 +20,7 @@ type Config struct {
 	TemplateHeaderFilePath string `toml:"template_header_file_path"`
 	TemplateFooterFilePath string `toml:"template_footer_file_path"`
 	TemplateIndexFilePath  string `toml:"template_index_file_path"`
+	CommitMessage          string `toml:"commit_message"`
 	CSSDir                 string `toml:"css_dir"`
 	OutputDir              string `toml:"output_dir"`
 }
@@ -33,6 +34,7 @@ func defaultConfig(root string) Config {
 		TemplateHeaderFilePath: root + "/templates/header.html",
 		TemplateFooterFilePath: root + "/templates/footer.html",
 		TemplateIndexFilePath:  root + "/templates/index.html",
+		CommitMessage:          "Babilema: generate blog",
 		CSSDir:                 root + "/templates/css",
 		OutputDir:              root,
 	}
