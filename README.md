@@ -56,15 +56,15 @@ with:
 The default configuration file would look like this (if it wasn't built at runtime):
 
 ```toml 
-website_url = "http://localhost:8080"   # The URL of your website
-blog_title = ""                         # The title of your blog, can be overwritten per issue
-blog_post_issue_prefix = "[BLOG]"       # The prefix of your blog post issues title
-output_dir = "{repo_root}/"             # The directory where the generated html files will be saved
+website_url = "http://localhost:8080"       # The URL of your website
+blog_title = ""                             # The title of your blog, can be overwritten per issue
+blog_post_issue_prefix = "[BLOG]"           # The prefix of your blog post issues title
+commit_message = "Babilema: generate blog"  # The commit message when generating and adding the files to your repo 
+output_dir = "{repo_root}/"                 # The directory where the generated html files will be saved
 template_post_file_path = "{repo_root}/{output_dir}/templates/post.html"
 template_header_file_path = "{repo_root}/{output_dir}/templates/header.html"
 template_footer_file_path = "{repo_root}/{output_dir}/templates/footer.html"
 template_index_file_path = "{repo_root}/{output_dir}/templates/index.html" # Your blog's homepage file
-commit_message = "Babilema: generate blog"    # The commit message when generating and adding the files to your repo 
 css_dir = "{repo_root}/{output_dir}/templates/css" # The directory where the CSS files are stored (if any)
 ```
 

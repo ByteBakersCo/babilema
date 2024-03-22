@@ -12,11 +12,11 @@ func TestLoadConfig(t *testing.T) {
 		WebsiteURL:             "https://babilema.github.io",
 		BlogTitle:              "Babilema: A Minimalist Static Blog Generator",
 		BlogPostIssuePrefix:    "[BLOG]",
+		CommitMessage:          "Babilema: generate blog",
 		TemplatePostFilePath:   root + "/templates/post.html",
 		TemplateHeaderFilePath: root + "/templates/header.html",
 		TemplateFooterFilePath: root + "/templates/footer.html",
 		TemplateIndexFilePath:  root + "/templates/index.html",
-		CommitMessage:          "Babilema: generate blog",
 		CSSDir:                 root + "/templates/css",
 		OutputDir:              root,
 	}
