@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -22,4 +23,24 @@ func FormatStruct(s interface{}, msg ...string) string {
 		" ",
 		"\n",
 	)
+}
+
+func CommitAndPushGeneratedFiles(commitMsg string) error {
+	gitCommands := [][]string{
+		{"config", "--global", "user.name", "'GitHub Actions'"},
+		{"config", "--global", "user.email", "'github-actions@github.com'"},
+		{"add", "-A"},
+		{"commit", "-m", commitMsg},
+		{"push"},
+	}
+
+	for _, gitCommand := range gitCommands {
+		cmd := exec.Command("git", gitCommand...)
+		err := cmd.Run()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

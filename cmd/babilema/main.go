@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 
 	"github.com/ByteBakersCo/babilema/internal/config"
@@ -37,5 +36,8 @@ func main() {
 		log.Fatal("Error generating blog posts:", err)
 	}
 
-	fmt.Println("Blog posts generated successfully!")
+	err = utils.CommitAndPushGeneratedFiles(cfg.CommitMessage)
+	if err != nil {
+		log.Fatal("Error committing and pushing generated files:", err)
+	}
 }
