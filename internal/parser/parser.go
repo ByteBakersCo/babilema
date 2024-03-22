@@ -11,11 +11,12 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
-	"github.com/ByteBakersCo/babilema/internal/config"
-	"github.com/ByteBakersCo/babilema/internal/history"
 	"github.com/gomarkdown/markdown"
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
+
+	"github.com/ByteBakersCo/babilema/internal/config"
+	"github.com/ByteBakersCo/babilema/internal/history"
 )
 
 type Metadata struct {
@@ -192,7 +193,7 @@ func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
 			ctx,
 			owner,
 			repo,
-			issue.GetUser().GetName(),
+			issue.GetUser().GetLogin(),
 		)
 		if err != nil {
 			return nil, err
