@@ -10,7 +10,7 @@ import (
 	"github.com/ByteBakersCo/babilema/internal/utils"
 )
 
-const DefaultConfigPath = "/.babilema.toml"
+const DefaultConfigFileName string = ".babilema.toml"
 
 type Config struct {
 	WebsiteURL             string `toml:"website_url"`
@@ -23,6 +23,10 @@ type Config struct {
 	CommitMessage          string `toml:"commit_message"`
 	CSSDir                 string `toml:"css_dir"`
 	OutputDir              string `toml:"output_dir"`
+}
+
+func DefaultConfigPath() string {
+	return filepath.Join(utils.RootDir(), DefaultConfigFileName)
 }
 
 func defaultConfig(root string) Config {

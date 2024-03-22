@@ -21,7 +21,7 @@ func TestLoadConfig(t *testing.T) {
 		OutputDir:              root,
 	}
 
-	actual, err := LoadConfig(root + DefaultConfigPath)
+	actual, err := LoadConfig(root + DefaultConfigFileName)
 	if err != nil {
 		t.Error(err)
 	}
