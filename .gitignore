@@ -20,3 +20,4 @@
 # Go workspace file
 go.work
 NvimTree_1
+debug.sh
