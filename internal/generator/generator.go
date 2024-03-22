@@ -9,9 +9,11 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/net/html"
+
 	"github.com/ByteBakersCo/babilema/internal/config"
 	"github.com/ByteBakersCo/babilema/internal/parser"
-	"golang.org/x/net/html"
+	"github.com/ByteBakersCo/babilema/internal/utils"
 )
 
 type templateData struct {
@@ -78,7 +80,12 @@ func extractCSSLinks(cssDir string) ([]string, error) {
 			}
 
 			if !info.IsDir() && strings.HasSuffix(path, ".css") {
-				cssLinks = append(cssLinks, path)
+				relativePath, err := filepath.Rel(utils.RootDir(), path)
+				if err != nil {
+					return err
+				}
+
+				cssLinks = append(cssLinks, relativePath)
 			}
 
 			return nil
