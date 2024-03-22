@@ -8,7 +8,8 @@
     <meta name="description" content="{{.Metadata.Description}}">
     {{end}}
     {{if .Metadata.Keywords}}
-    <meta name="keywords" content="{{.Metadata.Keywords}}">
+    <meta name="keywords"
+        content="{{range $index, $element := .Metadata.Keywords}}{{if $index}},{{end}}{{$element}}{{end}}">
     {{end}}
     {{if .Metadata.Author}}
     <meta name="author" content="{{.Metadata.Author}}">
@@ -86,14 +87,17 @@
     {{if .Header}}
     <header>{{.Header}}</header>
     {{end}}
-    <main id="content">
+    <main>
         <div id="title">
             <h1>{{.Metadata.Title}}</h1>
             {{if .Metadata.Author}}
-            <p>By {{.Metadata.Author}} on {{.Metadata.DatePublished}}</p>
-            {{if ne .Metadata.DateModified .Metadata.DatePublished}}
-            <p>Last modified on {{.Metadata.DateModified}}</p>
-            {{end}}
+            <div id="author">
+                <p>By {{.Metadata.Author}} on {{.Metadata.DatePublished.Format "January 2, 2006"}}
+                    {{if ne .Metadata.DateModified .Metadata.DatePublished}}
+                    <br />Last modified on {{.Metadata.DateModified.Format "January 2, 2006"}}
+                </p>
+                {{end}}
+            </div>
 
             {{end}}
         </div>

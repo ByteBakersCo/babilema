@@ -1,10 +1,36 @@
+:root {
+    --main-bg-color: #252526;
+    --secondary-bg-color: #1e1e1e;
+    --tertiary-bg-color: #0e0e0e;
+    --main-text-color: #f8f8f2;
+    --link-color: #0061a3;
+    --link-hover-color: #61dafb;
+    --link-visited-color: #007acc;
+}
+
+a {
+    color: var(--link-color);
+}
+
+a:hover {
+    color: var(--link-hover-color);
+}
+
+a:visited {
+    color: var(--link-visited-color);
+}
+
 body {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    width: 100%;
     margin: 0;
     padding: 0;
+    background-color: var(--main-bg-color);
+    color: var(--main-text-color);
+    font-size: 1.2rem;
 }
 
 footer {
@@ -12,19 +38,75 @@ footer {
     justify-content: center;
     align-items: center;
     height: 100px;
+    width: 100%;
+    background-color: var(--secondary-bg-color);
 }
 
 header {
-    position: fixed;
+    position: static;
     top: 0;
     left: 0;
     width: 100%;
     display: flex;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
+    background-color: var(--secondary-bg-color);
+}
+
+header div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 90%;
 }
 
 header a {
     font-size: 1.5em;
     margin: 0 10px;
+}
+
+#header-title {
+    font-size: 2.5em;
+    color: var(--main-text-color);
+    text-decoration: none;
+}
+
+#gh-cta {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    gap: 1rem;
+    color: var(--main-text-color);
+    text-decoration: none;
+    background-color: var(--tertiary-bg-color);
+    padding: 10px;
+    border-radius: 1rem;
+    font-size: 1.5rem;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+    margin: 0 20%;
+    margin-bottom: 5rem;
+}
+
+#author {
+    display: flex;
+    justify-content: start;
+    flex-direction: column;
+    gap: 0;
+    font-size: 0.8em;
+}
+
+#title {
+    display: flex;
+    flex-direction: column;
+}
+
+#title>h1 {
+    font-size: 3rem;
 }
