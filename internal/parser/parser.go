@@ -216,10 +216,10 @@ func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
 			if !isUpdated {
 				continue
 			}
-
-			postsHistory[metadata.Slug] = issue.GetUpdatedAt().
-				Format(time.RFC3339)
 		}
+
+		postsHistory[metadata.Slug] = issue.GetUpdatedAt().
+			Format(time.RFC3339)
 
 		content, err := extractMarkdown([]byte(issue.GetBody()))
 		if err != nil {
@@ -234,7 +234,7 @@ func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
 		})
 	}
 
-	log.Printf("Found %d blog posts to generate\n", len(parsedIssues))
+	log.Printf("Found %d blog posts to generate.\n", len(parsedIssues))
 
 	if len(parsedIssues) > 0 {
 		history.UpdateHistoryFile(postsHistory, cfg)
