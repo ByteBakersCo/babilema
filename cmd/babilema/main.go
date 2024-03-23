@@ -7,7 +7,6 @@ import (
 	"github.com/ByteBakersCo/babilema/internal/config"
 	"github.com/ByteBakersCo/babilema/internal/generator"
 	"github.com/ByteBakersCo/babilema/internal/parser"
-	"github.com/ByteBakersCo/babilema/internal/utils"
 )
 
 func main() {
@@ -34,10 +33,5 @@ func main() {
 	err = generator.GenerateBlogPosts(parsedIssues, cfg, nil)
 	if err != nil {
 		log.Fatal("Error generating blog posts:", err)
-	}
-
-	err = utils.CommitAndPushGeneratedFiles(cfg.CommitMessage)
-	if err != nil {
-		log.Fatal("Error committing and pushing generated files:", err)
 	}
 }
