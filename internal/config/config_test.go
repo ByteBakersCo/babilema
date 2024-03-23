@@ -13,7 +13,6 @@ func TestLoadConfig(t *testing.T) {
 		WebsiteURL:             "https://babilema.github.io",
 		BlogTitle:              "Babilema: A Minimalist Static Blog Generator",
 		BlogPostIssuePrefix:    "[BLOG]",
-		CommitMessage:          "Babilema: generate blog",
 		TemplatePostFilePath:   filepath.Join(root, "templates", "post.html"),
 		TemplateHeaderFilePath: filepath.Join(root, "templates", "header.html"),
 		TemplateFooterFilePath: filepath.Join(root, "templates", "footer.html"),

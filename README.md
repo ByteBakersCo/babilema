@@ -48,7 +48,6 @@ The default configuration file would look like this (if it wasn't built at runti
 website_url = "http://localhost:8080"       # The URL of your website
 blog_title = ""                             # The title of your blog, can be overwritten per issue
 blog_post_issue_prefix = "[BLOG]"           # The prefix of your blog post issues title
-commit_message = "Babilema: generate blog"  # The commit message when generating and adding the files to your repo 
 output_dir = "{repo_root}/"                 # The directory where the generated html files will be saved
 temp_dir = "{repo_root}/tmp"                 # The directory where the temporary files will be saved
 template_post_file_path = "{repo_root}/{output_dir}/templates/post.html"
