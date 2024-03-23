@@ -24,18 +24,18 @@ func main() {
 
 	cfg, err := config.LoadConfig(*configFilePath)
 	if err != nil {
-		log.Fatal("Error loading config:", err)
+		log.Fatalln("Error loading config:", err)
 	}
 
 	log.Println("Config loaded successfully from", *configFilePath)
 
 	parsedIssues, err := parser.ParseIssues(cfg)
 	if err != nil {
-		log.Fatal("Error parsing issues:", err)
+		log.Fatalln("Error parsing issues:", err)
 	}
 
 	err = generator.GenerateBlogPosts(parsedIssues, cfg, nil)
 	if err != nil {
-		log.Fatal("Error generating blog posts:", err)
+		log.Fatalln("Error generating blog posts:", err)
 	}
 }
