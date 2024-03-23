@@ -12,3 +12,11 @@ func TestRootDir(t *testing.T) {
 		t.Errorf("Expected output to be %s, got %s", expected, actual)
 	}
 }
+
+func TestRelativeFilePath(t *testing.T) {
+	expected := "/internal/utils/utils.go"
+	actual, _ := RelativeFilePath(RootDir() + "/internal/utils/utils.go")
+	if actual != expected {
+		t.Errorf("Expected output to be %s, got %s", expected, actual)
+	}
+}

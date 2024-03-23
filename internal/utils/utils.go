@@ -25,6 +25,15 @@ func FormatStruct(s interface{}, msg ...string) string {
 	)
 }
 
+func RelativeFilePath(path string) (string, error) {
+	relativePath, err := filepath.Rel(RootDir(), path)
+	if err != nil {
+		return "", err
+	}
+
+	return "/" + relativePath, nil
+}
+
 func CommitAndPushGeneratedFiles(commitMsg string) error {
 	gitCommands := [][]string{
 		{"config", "--global", "user.name", "'GitHub Actions'"},

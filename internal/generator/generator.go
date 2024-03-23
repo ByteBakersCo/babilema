@@ -80,12 +80,12 @@ func extractCSSLinks(cssDir string) ([]string, error) {
 			}
 
 			if !info.IsDir() && strings.HasSuffix(path, ".css") {
-				relativePath, err := filepath.Rel(utils.RootDir(), path)
+				relativeFilePath, err := utils.RelativeFilePath(path)
 				if err != nil {
 					return err
 				}
 
-				cssLinks = append(cssLinks, relativePath)
+				cssLinks = append(cssLinks, relativeFilePath)
 			}
 
 			return nil
