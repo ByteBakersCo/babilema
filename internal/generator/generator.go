@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"bytes"
 	"html/template"
 	"io"
 	"log"
@@ -32,13 +33,19 @@ type article struct {
 	URL           string
 }
 
-func extractHTML(filePath string) (template.HTML, error) {
-	content, err := os.ReadFile(filePath)
+func extractHTML(filePath string, data interface{}) (template.HTML, error) {
+	tmpl, err := template.ParseFiles(filePath)
 	if err != nil {
 		return "", err
 	}
 
-	return template.HTML(content), nil
+	var buf bytes.Buffer
+	err = tmpl.Execute(&buf, data)
+	if err != nil {
+		return "", err
+	}
+
+	return template.HTML(buf.String()), nil
 }
 
 func extractPlainText(content template.HTML) string {
@@ -116,12 +123,13 @@ func generateBlogIndexPage(
 		return err
 	}
 
-	data.Header, err = extractHTML(cfg.TemplateHeaderFilePath)
+	// TODO: add possibility to inject custom data to header and footer
+	data.Header, err = extractHTML(cfg.TemplateHeaderFilePath, nil)
 	if err != nil {
 		return err
 	}
 
-	data.Footer, err = extractHTML(cfg.TemplateFooterFilePath)
+	data.Footer, err = extractHTML(cfg.TemplateFooterFilePath, nil)
 	if err != nil {
 		return err
 	}
@@ -171,12 +179,13 @@ func GenerateBlogPosts(
 		return err
 	}
 
-	data.Header, err = extractHTML(cfg.TemplateHeaderFilePath)
+	// TODO: add possibility to inject custom data to header and footer
+	data.Header, err = extractHTML(cfg.TemplateHeaderFilePath, nil)
 	if err != nil {
 		return err
 	}
 
-	data.Footer, err = extractHTML(cfg.TemplateFooterFilePath)
+	data.Footer, err = extractHTML(cfg.TemplateFooterFilePath, nil)
 	if err != nil {
 		return err
 	}
