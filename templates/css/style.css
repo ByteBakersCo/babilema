@@ -1,8 +1,9 @@
 :root {
-    --main-bg-color: #252526;
+    --primary-bg-color: #252526;
     --secondary-bg-color: #1e1e1e;
     --tertiary-bg-color: #0e0e0e;
-    --main-text-color: #f8f8f2;
+    --quaternary-bg-color: #303135;
+    --primary-text-colorn: #f8f8f2;
     --link-color: #0061a3;
     --link-hover-color: #61dafb;
     --link-visited-color: #007acc;
@@ -28,18 +29,22 @@ body {
     width: 100%;
     margin: 0;
     padding: 0;
-    background-color: var(--main-bg-color);
-    color: var(--main-text-color);
+    background-color: var(--primary-bg-color);
+    color: var(--primary-text-colorn);
     font-size: 1.2rem;
 }
 
 footer {
+    position: static;
+    bottom: 0;
+    left: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100px;
     width: 100%;
     background-color: var(--secondary-bg-color);
+    font-size: 0.8rem;
 }
 
 header {
@@ -59,16 +64,17 @@ header div {
     justify-content: space-between;
     align-items: center;
     width: 90%;
+    height: 100px;
 }
 
 header a {
-    font-size: 1.5em;
+    font-size: 1.5rem;
     margin: 0 10px;
 }
 
 #header-title {
-    font-size: 2.5em;
-    color: var(--main-text-color);
+    font-size: 2.5rem;
+    color: var(--primary-text-colorn);
     text-decoration: none;
 }
 
@@ -78,20 +84,20 @@ header a {
     align-items: center;
     margin: 20px 0;
     gap: 1rem;
-    color: var(--main-text-color);
+    color: var(--primary-text-colorn);
     text-decoration: none;
     background-color: var(--tertiary-bg-color);
     padding: 10px;
     border-radius: 1rem;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
 }
 
 main {
     display: flex;
     flex-direction: column;
     width: 60%;
-    margin: 0 20%;
-    margin-bottom: 5rem;
+    min-height: calc(100vh - 200px - 10rem);
+    margin: 5rem 20%;
 }
 
 #author {
@@ -99,7 +105,7 @@ main {
     justify-content: start;
     flex-direction: column;
     gap: 0;
-    font-size: 0.8em;
+    font-size: 0.8rem;
 }
 
 #title {
@@ -109,4 +115,34 @@ main {
 
 #title>h1 {
     font-size: 3rem;
+}
+
+/* index.html */
+
+#article-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 1rem;
+}
+
+article {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    width: 50%;
+    height: 200px;
+    padding-right: 1rem;
+    border-radius: 0 1rem 1rem 0;
+    background-color: var(--quaternary-bg-color);
+}
+
+.post-image {
+    width: 200px;
+
+}
+
+p.author-info {
+    font-size: 1rem;
 }
