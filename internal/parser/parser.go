@@ -212,14 +212,13 @@ func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
 		}
 
 		if _, ok := postsHistory[metadata.Slug]; ok {
-			isUpdated := issue.GetUpdatedAt().After(metadata.DateModified)
+			isUpdated := issue.GetUpdatedAt().After(postsHistory[metadata.Slug])
 			if !isUpdated {
 				continue
 			}
 		}
 
-		postsHistory[metadata.Slug] = issue.GetUpdatedAt().
-			Format(time.RFC3339)
+		postsHistory[metadata.Slug] = issue.GetUpdatedAt()
 
 		content, err := extractMarkdown([]byte(issue.GetBody()))
 		if err != nil {
