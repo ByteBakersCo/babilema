@@ -48,7 +48,7 @@ func UpdateHistoryFile(history map[string]time.Time, cfg config.Config) error {
 	var file *os.File
 
 	file, err := os.OpenFile(
-		filepath.Join(cfg.OutputDir, historyFileName),
+		filepath.Join(cfg.TempDir, historyFileName),
 		os.O_CREATE|os.O_TRUNC|os.O_WRONLY,
 		0644,
 	)
