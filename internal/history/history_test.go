@@ -1,6 +1,7 @@
 package history
 
 import (
+	"log"
 	"maps"
 	"os"
 	"testing"
@@ -11,7 +12,10 @@ import (
 )
 
 func cleanup() {
-	os.Remove(historyFileName)
+	err := os.Remove(historyFileName)
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 func TestUpdateHistoryFile(t *testing.T) {
