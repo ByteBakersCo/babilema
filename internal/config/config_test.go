@@ -1,6 +1,7 @@
 package config
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/ByteBakersCo/babilema/internal/utils"
@@ -21,7 +22,9 @@ func TestLoadConfig(t *testing.T) {
 		OutputDir:              root,
 	}
 
-	actual, err := LoadConfig(root + DefaultConfigFileName)
+	configPath := filepath.Join(root, DefaultConfigFileName)
+
+	actual, err := LoadConfig(configPath)
 	if err != nil {
 		t.Error(err)
 	}

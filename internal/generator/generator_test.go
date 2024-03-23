@@ -3,6 +3,8 @@ package generator
 import (
 	"bytes"
 	"html/template"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -30,18 +32,32 @@ func TestGenerateBlogPosts(t *testing.T) {
 		},
 	}
 
+	_, file, _, _ := runtime.Caller(0)
+	basePath := filepath.Dir(file)
 	var buf bytes.Buffer
 	err := GenerateBlogPosts(
 		parsedFiles,
 		config.Config{
-			TemplatePostFilePath:   "./test-data/post.html",
-			TemplateHeaderFilePath: "./test-data/header.html",
-			TemplateFooterFilePath: "./test-data/footer.html",
-			TemplateIndexFilePath:  "./test-data/index.html",
-			OutputDir:              "./test-data",
-			CSSDir:                 "./test-data",
-			BlogPostIssuePrefix:    "[BLOG]",
-			WebsiteURL:             "http://localhost:8080",
+			TemplatePostFilePath: filepath.Join(
+				basePath,
+				"test-data/post.html",
+			),
+			TemplateHeaderFilePath: filepath.Join(
+				basePath,
+				"test-data/header.html",
+			),
+			TemplateFooterFilePath: filepath.Join(
+				basePath,
+				"test-data/footer.html",
+			),
+			TemplateIndexFilePath: filepath.Join(
+				basePath,
+				"test-data/index.html",
+			),
+			OutputDir:           filepath.Join(basePath, "test-data"),
+			CSSDir:              filepath.Join(basePath, "test-data"),
+			BlogPostIssuePrefix: "[BLOG]",
+			WebsiteURL:          "http://localhost:8080",
 		},
 		&buf,
 	)
@@ -55,9 +71,9 @@ func TestGenerateBlogPosts(t *testing.T) {
 		<title>Test Title - Website name</title>
 
 
-		<link rel="stylesheet" type="text/css" href="test-data/css/bar.css">
+		<link rel="stylesheet" type="text/css" href="/internal/generator/test-data/css/bar.css">
 
-	<link rel="stylesheet" type="text/css" href="test-data/foo.css">
+	<link rel="stylesheet" type="text/css" href="/internal/generator/test-data/foo.css">
 
 
 	</head>
