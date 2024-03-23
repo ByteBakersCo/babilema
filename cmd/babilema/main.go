@@ -18,6 +18,10 @@ func main() {
 
 	flag.Parse()
 
+	if *configFilePath == "" {
+		*configFilePath = config.DefaultConfigPath()
+	}
+
 	cfg, err := config.LoadConfig(*configFilePath)
 	if err != nil {
 		log.Fatal("Error loading config:", err)
