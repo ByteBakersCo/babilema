@@ -20,6 +20,7 @@ It is intended to be used as a GitHub action.
   * [robots.txt](#robotstxt)
   * [Who can write?](#who-can-write)
   * [History file](#history-file)
+- [Contributing](#contributing)
 
 ## Usage
 In order to use Babilema, you need to have a GitHub repository with issues that will be used as blog posts.  
@@ -154,6 +155,19 @@ last time.  If you want to re-generate all blog posts, you can delete this
 file.
 
 ---
+## Contributing
+PRs are welcome!  
+The goal here is to have just the essentials to have a basic blog that does it's primary job: display blog posts.  
+
+If you want to open a PR, feel free to do so. 
+Just make sure to (more or less) follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard.  
+Also make sure to run `gofmt` on your code before committing.  
+Ideally, lines should not exceed 80 characters.  
+
+Please try to keep the code as simple as possible and respect the general style of the project.  
+Also don't forget to add tests for your code, update the README, yaddi yadda...
+
+And use US English :D  
 
 ### TODO
 
