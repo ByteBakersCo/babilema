@@ -17,6 +17,8 @@ import (
 	"github.com/ByteBakersCo/babilema/internal/utils"
 )
 
+const maxPreviewLength int = 240
+
 type templateData struct {
 	parser.ParsedIssue
 	Header   template.HTML
@@ -31,6 +33,30 @@ type article struct {
 	Preview       template.HTML
 	DatePublished time.Time
 	URL           string
+}
+
+func moveGeneratedFilesToOutputDir(cfg config.Config) error {
+	files, err := os.ReadDir(cfg.TempDir)
+	if err != nil {
+		return err
+	}
+
+	for _, file := range files {
+		src := filepath.Join(cfg.TempDir, file.Name())
+		dest := filepath.Join(cfg.OutputDir, file.Name())
+
+		err = os.Rename(src, dest)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = os.RemoveAll(cfg.TempDir)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func extractHTML(filePath string, data interface{}) (template.HTML, error) {
@@ -66,8 +92,8 @@ func extractPlainText(content template.HTML) string {
 	f(doc)
 
 	result := strings.Join(strings.Fields(text), " ")
-	if len(result) > 140 {
-		result = result[:140] + "..."
+	if len(result) > maxPreviewLength {
+		result = result[:maxPreviewLength] + "..."
 	}
 
 	return result
@@ -214,13 +240,21 @@ func GenerateBlogPosts(
 
 			writer = outputFile
 
+			var url string
+			url, err = utils.RelativeFilePath(
+				filepath.Join(cfg.OutputDir, filename),
+			)
+			if err != nil {
+				return err
+			}
+
 			articles = append(articles, article{
 				Image:         data.Metadata.Image,
 				Title:         data.Metadata.Title,
 				Author:        data.Metadata.Author,
 				Preview:       template.HTML(extractPlainText(data.Content)),
 				DatePublished: data.Metadata.DatePublished,
-				URL:           path,
+				URL:           url,
 			})
 		}
 
@@ -240,7 +274,7 @@ func GenerateBlogPosts(
 
 	isTest := testOutputWriter != nil
 	if !isTest {
-		err = os.Rename(cfg.TempDir, cfg.OutputDir)
+		err = moveGeneratedFilesToOutputDir(cfg)
 		if err != nil {
 			return err
 		}
