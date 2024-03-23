@@ -10,7 +10,7 @@ import (
 
 func RootDir() string {
 	_, file, _, _ := runtime.Caller(0)
-	return filepath.Join(filepath.Dir(file), "../..")
+	return filepath.Join(filepath.Dir(file), "..", "..")
 }
 
 // Pretty format struct

@@ -14,12 +14,13 @@ func TestLoadConfig(t *testing.T) {
 		BlogTitle:              "Babilema: A Minimalist Static Blog Generator",
 		BlogPostIssuePrefix:    "[BLOG]",
 		CommitMessage:          "Babilema: generate blog",
-		TemplatePostFilePath:   root + "/templates/post.html",
-		TemplateHeaderFilePath: root + "/templates/header.html",
-		TemplateFooterFilePath: root + "/templates/footer.html",
-		TemplateIndexFilePath:  root + "/templates/index.html",
-		CSSDir:                 root + "/templates/css",
+		TemplatePostFilePath:   filepath.Join(root, "templates", "post.html"),
+		TemplateHeaderFilePath: filepath.Join(root, "templates", "header.html"),
+		TemplateFooterFilePath: filepath.Join(root, "templates", "footer.html"),
+		TemplateIndexFilePath:  filepath.Join(root, "templates", "index.html"),
+		CSSDir:                 filepath.Join(root, "templates", "css"),
 		OutputDir:              root,
+		TempDir:                filepath.Join(root, "tmp"),
 	}
 
 	configPath := filepath.Join(root, DefaultConfigFileName)

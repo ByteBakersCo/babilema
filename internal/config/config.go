@@ -23,6 +23,7 @@ type Config struct {
 	CommitMessage          string `toml:"commit_message"`
 	CSSDir                 string `toml:"css_dir"`
 	OutputDir              string `toml:"output_dir"`
+	TempDir                string `toml:"temp_dir"`
 }
 
 func DefaultConfigPath() string {
@@ -34,13 +35,14 @@ func defaultConfig(root string) Config {
 		WebsiteURL:             "http://localhost:8080",
 		BlogTitle:              "",
 		BlogPostIssuePrefix:    "[BLOG]",
-		TemplatePostFilePath:   root + "/templates/post.html",
-		TemplateHeaderFilePath: root + "/templates/header.html",
-		TemplateFooterFilePath: root + "/templates/footer.html",
-		TemplateIndexFilePath:  root + "/templates/index.html",
+		TemplatePostFilePath:   filepath.Join(root, "templates", "post.html"),
+		TemplateHeaderFilePath: filepath.Join(root, "templates", "header.html"),
+		TemplateFooterFilePath: filepath.Join(root, "templates", "footer.html"),
+		TemplateIndexFilePath:  filepath.Join(root, "templates", "index.html"),
 		CommitMessage:          "Babilema: generate blog",
-		CSSDir:                 root + "/templates/css",
+		CSSDir:                 filepath.Join(root, "templates", "css"),
 		OutputDir:              root,
+		TempDir:                filepath.Join(root, "tmp"),
 	}
 }
 

@@ -40,22 +40,27 @@ func TestGenerateBlogPosts(t *testing.T) {
 		config.Config{
 			TemplatePostFilePath: filepath.Join(
 				basePath,
-				"test-data/post.html",
+				"test-data",
+				"post.html",
 			),
 			TemplateHeaderFilePath: filepath.Join(
 				basePath,
-				"test-data/header.html",
+				"test-data",
+				"header.html",
 			),
 			TemplateFooterFilePath: filepath.Join(
 				basePath,
-				"test-data/footer.html",
+				"test-data",
+				"footer.html",
 			),
 			TemplateIndexFilePath: filepath.Join(
 				basePath,
-				"test-data/index.html",
+				"test-data",
+				"index.html",
 			),
 			OutputDir:           filepath.Join(basePath, "test-data"),
 			CSSDir:              filepath.Join(basePath, "test-data"),
+			TempDir:             filepath.Join(basePath, "test-data", "tmp"),
 			BlogPostIssuePrefix: "[BLOG]",
 			WebsiteURL:          "http://localhost:8080",
 		},
@@ -109,7 +114,7 @@ This is a test with an image <img href="foo.jpg" alt="an image" />
 func TestGenerateBlogIndexPage(t *testing.T) {
 	articles := []article{
 		{
-			Image:         "test-data/image.jpg",
+			Image:         filepath.Join("test-data", "image.jpg"),
 			Author:        "Test Author",
 			Preview:       "Test preview",
 			Title:         "Test Title 1",
@@ -129,10 +134,22 @@ func TestGenerateBlogIndexPage(t *testing.T) {
 	err := generateBlogIndexPage(
 		articles,
 		config.Config{
-			TemplateIndexFilePath:  "./test-data/index.html",
-			TemplateHeaderFilePath: "./test-data/header.html",
-			TemplateFooterFilePath: "./test-data/footer.html",
-			OutputDir:              "./test-data",
+			TemplateIndexFilePath: filepath.Join(
+				".",
+				"test-data",
+				"index.html",
+			),
+			TemplateHeaderFilePath: filepath.Join(
+				".",
+				"test-data",
+				"header.html",
+			),
+			TemplateFooterFilePath: filepath.Join(
+				".",
+				"test-data",
+				"footer.html",
+			),
+			OutputDir: filepath.Join(".", "test-data"),
 		},
 		&buf,
 	)
