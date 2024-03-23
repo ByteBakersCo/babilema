@@ -46,6 +46,7 @@ Babilema uses a TOML configuration file, by default it will look for
 `.babilema.toml` at the root of your repo.  
 You can pass a different path as an argument when executing the action.  
 Like so:  
+**TODO: put a usable example -- this is a placeholder!**  
 ```yaml
 name: Babilema
 uses: babilema/babilema@v0.1.0
