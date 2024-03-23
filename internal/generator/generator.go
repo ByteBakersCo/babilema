@@ -208,7 +208,7 @@ func GenerateBlogPosts(
 			})
 		}
 
-		log.Println("Generating blog post: " + data.Metadata.Slug)
+		log.Println("Generating blog post:", data.Metadata.Slug)
 		err = postTemplate.Execute(writer, data)
 		if err != nil {
 			return err
