@@ -110,6 +110,10 @@ func generateBlogIndexPage(
 	cfg config.Config,
 	testOutputWriter io.Writer, // for testing purposes
 ) error {
+	if len(articles) == 0 {
+		return nil
+	}
+
 	data := struct {
 		Header   template.HTML
 		Footer   template.HTML
@@ -136,9 +140,8 @@ func generateBlogIndexPage(
 
 	writer := testOutputWriter
 	if writer == nil {
-		outputDir := cfg.OutputDir
 		filename := filepath.Base(cfg.TemplateIndexFilePath)
-		path := filepath.Join(outputDir, filename)
+		path := filepath.Join(cfg.TempDir, filename)
 
 		outputFile, error := os.Create(path)
 		if error != nil {
@@ -195,14 +198,18 @@ func GenerateBlogPosts(
 		data.ParsedIssue = issue
 		writer := testOutputWriter
 		filename := issue.Metadata.Slug + ".html"
-		path := filepath.Join(cfg.OutputDir, filename)
+		path := filepath.Join(cfg.TempDir, filename)
 
 		if writer == nil {
+			err = os.MkdirAll(cfg.TempDir, os.ModePerm)
+			if err != nil {
+				return err
+			}
+
 			outputFile, error := os.Create(path)
 			if error != nil {
 				return error
 			}
-
 			defer outputFile.Close()
 
 			writer = outputFile
@@ -224,8 +231,16 @@ func GenerateBlogPosts(
 		}
 	}
 
-	if articles != nil {
+	if len(articles) > 0 {
 		err = generateBlogIndexPage(articles, cfg, testOutputWriter)
+		if err != nil {
+			return err
+		}
+	}
+
+	isTest := testOutputWriter != nil
+	if !isTest {
+		err = os.Rename(cfg.TempDir, cfg.OutputDir)
 		if err != nil {
 			return err
 		}

@@ -61,6 +61,7 @@ blog_title = ""                             # The title of your blog, can be ove
 blog_post_issue_prefix = "[BLOG]"           # The prefix of your blog post issues title
 commit_message = "Babilema: generate blog"  # The commit message when generating and adding the files to your repo 
 output_dir = "{repo_root}/"                 # The directory where the generated html files will be saved
+temp_dir = "{repo_root}/tmp"                 # The directory where the temporary files will be saved
 template_post_file_path = "{repo_root}/{output_dir}/templates/post.html"
 template_header_file_path = "{repo_root}/{output_dir}/templates/header.html"
 template_footer_file_path = "{repo_root}/{output_dir}/templates/footer.html"
@@ -68,7 +69,9 @@ template_index_file_path = "{repo_root}/{output_dir}/templates/index.html" # You
 css_dir = "{repo_root}/{output_dir}/templates/css" # The directory where the CSS files are stored (if any)
 ```
 
-`{repo_root}` will be replaced by the absolute path to the repository root.    
+`{repo_root}` will be replaced by the absolute path to the repository or website root (`/`).  
+`temp_dir` is where the generated files will be if something goes wrong, otherwise all the generated files will be copied to `output_dir`.  
+This is a mechanism to help you debug your HTML easily, since the templating will have stopped where it failed.
 
 By default, `output_dir` will be used to determine the root of all other paths and it will always be preceded by `{repo_root}`.  
 Meaning that if you leave `output_dir` empty, it will be equal to `{repo_root}`, if you set it to `blog/` it will be `{repo_root}/blog/`.  
@@ -116,4 +119,6 @@ file.
 - [x] Handle `index.html` file
 - [ ] Add testing blog on this repo
 - [ ] Add support for custom metadata
+- [ ] Add support for injecting data in header + footer
+- [ ] Make sure the injected paths (HTML) is correct on Windows
 - [ ] Use goroutines to speed up the process
