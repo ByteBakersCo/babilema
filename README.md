@@ -181,6 +181,7 @@ And use US English :D
 - [ ] Add testing blog on this repo
 - [ ] Add support for custom metadata
 - [ ] Add support for injecting data in header + footer
+- [ ] (CI) Check if it's possible to trigger a rebuild on issue update
 - [ ] Make sure the injected paths (HTML) is correct on Windows
 - [ ] Add auto-optimization for preview images (?)
 - [ ] Use goroutines to speed up the process
