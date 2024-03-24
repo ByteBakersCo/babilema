@@ -1,4 +1,4 @@
-name: CI
+name: Generate blog
 
 on:
   pull_request:
@@ -10,17 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out code
+    - name: 'Check out code'
       uses: actions/checkout@v2
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-
-    - name: Build Docker image
-      run: docker build . --file Dockerfile --tag babilema
-
-    - name: Run tests
-      run: docker run --rm --entrypoint go babilema test ./...
-
-    - name: Run program
-      run: docker run --rm -e GITHUB_REPOSITORY=${{ github.repository }} -e GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} babilema
+    - name: 'Generate blog' 
+      uses: ByteBakersCo/babilema-action@v1
