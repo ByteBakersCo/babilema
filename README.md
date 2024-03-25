@@ -24,7 +24,7 @@ It is intended to be used as a GitHub action.
 
 ## Usage
 In order to use Babilema, you need to have a GitHub repository with issues that will be used as blog posts.  
-You can run Babilema from the command line or as a GitHub action. **TODO: add link to the GH action**  
+You can run Babilema from the command line or as a [GitHub action](https://github.com/ByteBakersCo/babilema-action).  
 The minimum requirements are the environment variables `GITHUB_REPOSITORY` and `GITHUB_TOKEN` that need to be set.  
 
 ```bash
@@ -103,7 +103,7 @@ It will create a binary in the `bin` directory.
 ```
 
 Make sure you have Go installed on your system.  
-You also need to set the following environment variables:  
+You also need to set the following environment variables to run Babilema:  
 ```bash
 GITHUB_TOKEN="your_personal_access_token"
 GITHUB_REPOSITORY="your_username/your_repo"
@@ -113,14 +113,6 @@ GITHUB_REPOSITORY="your_username/your_repo"
 
 **NEVER SHARE YOUR PERSONAL ACCESS TOKEN**  
 Be sure to keep it safe and never commit it to your repository.  
-
-### Run from source
-You can also run the program directly from the source code:  
-```bash
-GITHUB_REPOSITORY="owner/repo" GITHUB_TOKEN="..." go run cmd/babilema/main.go
-```
-In the above example, the environment variables are only set for the current command.  
-It's useful for testing the program without having to set the variables globally.  
 
 ## Usage tips
 ### Debugging your templates
