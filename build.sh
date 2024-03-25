@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Making sure that the script will exit if a command fails
+set -e
+
 echo "Downloading dependencies..."
 go mod download && go mod verify
 
