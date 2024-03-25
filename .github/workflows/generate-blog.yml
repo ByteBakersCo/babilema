@@ -17,4 +17,3 @@ jobs:
       uses: ByteBakersCo/babilema-action@v1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        github_repository: ${{ github.repository }}
