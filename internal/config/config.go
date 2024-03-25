@@ -28,8 +28,13 @@ type Config struct {
 	TempDir                string `toml:"temp_dir"`
 }
 
-func DefaultConfigPath() string {
-	return filepath.Join(utils.RootDir(), DefaultConfigFileName)
+func DefaultConfigPath() (string, error) {
+	rootDir, err := utils.RootDir()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(rootDir, DefaultConfigFileName), nil
 }
 
 func defaultConfig(root string) Config {
@@ -47,19 +52,29 @@ func defaultConfig(root string) Config {
 	}
 }
 
-func trimPath(path string) string {
-	path = strings.TrimPrefix(path, utils.RootDir())
+func trimPath(path string) (string, error) {
+	rootDir, err := utils.RootDir()
+	if err != nil {
+		return "", err
+	}
+
+	path = strings.TrimPrefix(path, rootDir)
 	path = strings.TrimPrefix(path, ".")
 	path = strings.TrimPrefix(path, "/")
 	path = strings.TrimSuffix(path, "/")
 	path = strings.TrimSuffix(path, ".")
 
-	return path
+	return path, nil
 }
 
-func fillEmptyConfigFields(cfg Config) Config {
-	cfg.OutputDir = trimPath(cfg.OutputDir)
-	cfg.OutputDir = filepath.Join(utils.RootDir(), cfg.OutputDir)
+func fillEmptyConfigFields(cfg Config) (Config, error) {
+	outputDir, err := trimPath(cfg.OutputDir)
+	if err != nil {
+		return Config{}, err
+	}
+
+	rootDir, _ := utils.RootDir()
+	cfg.OutputDir = filepath.Join(rootDir, outputDir)
 
 	defaultCfg := defaultConfig(cfg.OutputDir)
 
@@ -75,52 +90,62 @@ func fillEmptyConfigFields(cfg Config) Config {
 		}
 	}
 
-	return cfg
+	return cfg, nil
 }
 
-func fixPaths(cfg Config) Config {
-	cfg.TemplatePostFilePath = trimPath(cfg.TemplatePostFilePath)
-	cfg.TemplateHeaderFilePath = trimPath(cfg.TemplateHeaderFilePath)
-	cfg.TemplateFooterFilePath = trimPath(cfg.TemplateFooterFilePath)
-	cfg.TemplateIndexFilePath = trimPath(cfg.TemplateIndexFilePath)
-	cfg.CSSDir = trimPath(cfg.CSSDir)
-	cfg.OutputDir = trimPath(cfg.OutputDir)
-	cfg.TemplatePostFilePath = filepath.Join(
-		utils.RootDir(),
-		cfg.TemplatePostFilePath,
-	)
-	cfg.TemplateHeaderFilePath = filepath.Join(
-		utils.RootDir(),
-		cfg.TemplateHeaderFilePath,
-	)
-	cfg.TemplateFooterFilePath = filepath.Join(
-		utils.RootDir(),
-		cfg.TemplateFooterFilePath,
-	)
-	cfg.TemplateIndexFilePath = filepath.Join(
-		utils.RootDir(),
-		cfg.TemplateIndexFilePath,
-	)
-	cfg.CSSDir = filepath.Join(utils.RootDir(), cfg.CSSDir)
-	cfg.OutputDir = filepath.Join(utils.RootDir(), cfg.OutputDir)
-
-	return cfg
-}
-
-func LoadConfig(configFilePath string) (Config, error) {
-	if _, err := os.Stat(configFilePath); errors.Is(err, os.ErrNotExist) {
-		log.Println("Config file not found. Using default config.")
-		return defaultConfig(utils.RootDir()), nil
-	}
-
-	cfg := Config{}
-	_, err := toml.DecodeFile(configFilePath, &cfg)
+func fixPaths(cfg Config) (Config, error) {
+	rootDir, err := utils.RootDir()
 	if err != nil {
 		return Config{}, err
 	}
 
-	cfg = fillEmptyConfigFields(cfg)
-	cfg = fixPaths(cfg)
+	cfg.TemplatePostFilePath, _ = trimPath(cfg.TemplatePostFilePath)
+	cfg.TemplateHeaderFilePath, _ = trimPath(cfg.TemplateHeaderFilePath)
+	cfg.TemplateFooterFilePath, _ = trimPath(cfg.TemplateFooterFilePath)
+	cfg.TemplateIndexFilePath, _ = trimPath(cfg.TemplateIndexFilePath)
+	cfg.CSSDir, _ = trimPath(cfg.CSSDir)
+	cfg.OutputDir, _ = trimPath(cfg.OutputDir)
+	cfg.TemplatePostFilePath = filepath.Join(
+		rootDir,
+		cfg.TemplatePostFilePath,
+	)
+	cfg.TemplateHeaderFilePath = filepath.Join(
+		rootDir,
+		cfg.TemplateHeaderFilePath,
+	)
+	cfg.TemplateFooterFilePath = filepath.Join(
+		rootDir,
+		cfg.TemplateFooterFilePath,
+	)
+	cfg.TemplateIndexFilePath = filepath.Join(
+		rootDir,
+		cfg.TemplateIndexFilePath,
+	)
+	cfg.CSSDir = filepath.Join(rootDir, cfg.CSSDir)
+	cfg.OutputDir = filepath.Join(rootDir, cfg.OutputDir)
+
+	return cfg, nil
+}
+
+func LoadConfig(configFilePath string) (Config, error) {
+	rootDir, err := utils.RootDir()
+	if err != nil {
+		return Config{}, err
+	}
+
+	if _, err = os.Stat(configFilePath); errors.Is(err, os.ErrNotExist) {
+		log.Println("Config file not found. Using default config.")
+		return defaultConfig(rootDir), nil
+	}
+
+	cfg := Config{}
+	_, err = toml.DecodeFile(configFilePath, &cfg)
+	if err != nil {
+		return Config{}, err
+	}
+
+	cfg, _ = fillEmptyConfigFields(cfg)
+	cfg, _ = fixPaths(cfg)
 
 	log.Println("Config loaded successfully from", configFilePath)
 

@@ -1,15 +1,31 @@
 package utils
 
 import (
+	"flag"
 	"fmt"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 )
 
-func RootDir() string {
-	_, file, _, _ := runtime.Caller(0)
-	return filepath.Join(filepath.Dir(file), "..", "..")
+func RootDir() (string, error) {
+	isRunningTest := flag.Lookup("test.v") != nil
+
+	if isRunningTest {
+		_, file, _, _ := runtime.Caller(0)
+		return filepath.Join(filepath.Dir(file), "..", ".."), nil
+
+	}
+
+	executable, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+
+	executablePath := filepath.Dir(executable)
+
+	return executablePath, nil
 }
 
 // Pretty format struct
@@ -25,7 +41,12 @@ func FormatStruct(s interface{}, msg ...string) string {
 }
 
 func RelativeFilePath(path string) (string, error) {
-	relativePath, err := filepath.Rel(RootDir(), path)
+	rootDir, err := RootDir()
+	if err != nil {
+		return "", err
+	}
+
+	relativePath, err := filepath.Rel(rootDir, path)
 	if err != nil {
 		return "", err
 	}

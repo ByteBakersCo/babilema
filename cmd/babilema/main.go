@@ -12,14 +12,19 @@ import (
 func main() {
 	configFilePath := flag.String(
 		"config",
-		config.DefaultConfigPath(),
+		"",
 		"Path to the config file",
 	)
 
 	flag.Parse()
 
 	if *configFilePath == "" {
-		*configFilePath = config.DefaultConfigPath()
+		defaultCfgPath, err := config.DefaultConfigPath()
+		if err != nil {
+			return
+		}
+
+		*configFilePath = defaultCfgPath
 	}
 
 	cfg, err := config.LoadConfig(*configFilePath)
