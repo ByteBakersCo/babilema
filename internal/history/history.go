@@ -36,7 +36,9 @@ func ParseHistoryFile(cfg config.Config) (map[string]time.Time, error) {
 	}
 
 	if errors.Is(err, os.ErrNotExist) {
-		log.Println("Creating a new history file...")
+		log.Println(
+			"History file not found, a new one will be created on update.",
+		)
 	} else {
 		log.Println("History file parsed.")
 	}
