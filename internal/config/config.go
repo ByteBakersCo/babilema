@@ -122,5 +122,7 @@ func LoadConfig(configFilePath string) (Config, error) {
 	cfg = fillEmptyConfigFields(cfg)
 	cfg = fixPaths(cfg)
 
+	log.Println("Config loaded successfully from", configFilePath)
+
 	return cfg, nil
 }

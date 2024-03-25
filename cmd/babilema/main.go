@@ -27,8 +27,6 @@ func main() {
 		log.Fatalln("Error loading config:", err)
 	}
 
-	log.Println("Config loaded successfully from", *configFilePath)
-
 	parsedIssues, err := parser.ParseIssues(cfg)
 	if err != nil {
 		log.Fatalln("Error parsing issues:", err)
