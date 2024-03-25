@@ -236,7 +236,12 @@ func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
 	log.Printf("Found %d blog posts to generate.\n", len(parsedIssues))
 
 	if len(parsedIssues) > 0 {
-		err := history.UpdateHistoryFile(postsHistory, cfg)
+		err = os.MkdirAll(cfg.TempDir, os.ModePerm)
+		if err != nil {
+			return nil, err
+		}
+
+		err = history.UpdateHistoryFile(postsHistory, cfg)
 		if err != nil {
 			return nil, err
 		}

@@ -227,11 +227,6 @@ func GenerateBlogPosts(
 		path := filepath.Join(cfg.TempDir, filename)
 
 		if writer == nil {
-			err = os.MkdirAll(cfg.TempDir, os.ModePerm)
-			if err != nil {
-				return err
-			}
-
 			outputFile, error := os.Create(path)
 			if error != nil {
 				return error
