@@ -35,4 +35,20 @@ func TestLoadConfig(t *testing.T) {
 			utils.FormatStruct(actual, "\ngot"),
 		)
 	}
+
+	// Test with a non-existent config file
+
+	expected = defaultConfig(root)
+	configPath = filepath.Join(root, "non-existent-config.toml")
+	actual, err = LoadConfig(configPath)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if expected != actual {
+		t.Error(
+			utils.FormatStruct(expected, "Expected output to be"),
+			utils.FormatStruct(actual, "\ngot"),
+		)
+	}
 }

@@ -1,6 +1,9 @@
 package config
 
 import (
+	"errors"
+	"log"
+	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -105,6 +108,11 @@ func fixPaths(cfg Config) Config {
 }
 
 func LoadConfig(configFilePath string) (Config, error) {
+	if _, err := os.Stat(configFilePath); errors.Is(err, os.ErrNotExist) {
+		log.Println("Config file not found. Using default config.")
+		return defaultConfig(utils.RootDir()), nil
+	}
+
 	cfg := Config{}
 	_, err := toml.DecodeFile(configFilePath, &cfg)
 	if err != nil {
