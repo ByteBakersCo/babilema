@@ -5,6 +5,9 @@ on:
     branches: [ blog ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   generate-blog:
     runs-on: ubuntu-latest
