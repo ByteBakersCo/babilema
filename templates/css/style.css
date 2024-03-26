@@ -1,12 +1,21 @@
 :root {
+    /* COLORS */
     --primary-bg-color: #252526;
     --secondary-bg-color: #1e1e1e;
     --tertiary-bg-color: #0e0e0e;
     --quaternary-bg-color: #303135;
-    --primary-text-colorn: #f8f8f2;
+    --primary-text-color: #f8f8f2;
     --link-color: #0061a3;
     --link-hover-color: #61dafb;
     --link-visited-color: #007acc;
+    --border-color: #f8f8f2;
+
+    /* SIZES */
+    --idx-article-images-width: 400px;
+    --border-width: 1px;
+
+    /* STYLES */
+    --border-style: solid;
 }
 
 a {
@@ -30,7 +39,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: var(--primary-bg-color);
-    color: var(--primary-text-colorn);
+    color: var(--primary-text-color);
     font-size: 1.2rem;
 }
 
@@ -74,7 +83,7 @@ header a {
 
 #header-title {
     font-size: 2.5rem;
-    color: var(--primary-text-colorn);
+    color: var(--primary-text-color);
     text-decoration: none;
 }
 
@@ -84,7 +93,7 @@ header a {
     align-items: center;
     margin: 20px 0;
     gap: 1rem;
-    color: var(--primary-text-colorn);
+    color: var(--primary-text-color);
     text-decoration: none;
     background-color: var(--tertiary-bg-color);
     padding: 10px;
@@ -132,17 +141,49 @@ article {
     flex-direction: row;
     gap: 1rem;
     width: 50%;
-    height: 200px;
+    height: var(--idx-article-images-width);
+    width: calc(var(--idx-article-images-width)*2);
     padding-right: 1rem;
-    border-radius: 0 1rem 1rem 0;
     background-color: var(--quaternary-bg-color);
 }
 
-.post-image {
-    width: 200px;
+article a {
+    color: var(--primary-text-color) !important;
+    text-decoration: none;
+}
 
+.post-image img {
+    width: var(--idx-article-images-width);
 }
 
 p.author-info {
     font-size: 1rem;
+}
+
+
+@media only screen and (max-width: 820px) {
+    article {
+        align-items: center;
+        flex-direction: row-reverse;
+        width: 90%;
+        padding: 0;
+        padding: 0 1rem;
+        height: auto;
+        border-bottom-style: var(--border-style);
+        border-bottom-width: var(--border-width);
+        border-bottom-color: var(--border-color);
+    }
+
+    .post-image img {
+        width: calc(var(--idx-article-images-width)/3);
+        border-radius: 50%;
+    }
+
+    .post-data p:not(.author-info) {
+        display: none;
+    }
+
+    #gh-cta span {
+        display: none;
+    }
 }
