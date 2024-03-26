@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta name="description" content="A blog post about how GitHub issues were used as support for generating blog posts">
+    
+    
+    <meta name="keywords"
+        content="blog,generator,static,minimalist,github,hack">
+    
+    
+    <meta name="author" content="Arthur Wallendorff">
+    
+    <meta name="robots" content="index, follow">
+    <title>
+        This blog post is actually a GitHub issue - Babilema: A Minimalist Static Blog Generator
+    </title>
+
+    
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bytebakersco.github.io/babilema/blog-intro">
+    <meta property="og:title" content="This blog post is actually a GitHub issue">
+    
+    <meta property="og:description" content="A blog post about how GitHub issues were used as support for generating blog posts">
+    
+    
+    <meta property="og:image" content="https://github.com/ByteBakersCo/babilema/assets/2111910/351e35da-221a-4119-98d7-b08d2a5d3484">
+    
+
+    
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://bytebakersco.github.io/babilema/blog-intro">
+    <meta property="twitter:title" content="This blog post is actually a GitHub issue">
+    
+    <meta property="twitter:description" content="A blog post about how GitHub issues were used as support for generating blog posts">
+    
+    
+    <meta property="twitter:image" content="https://github.com/ByteBakersCo/babilema/assets/2111910/351e35da-221a-4119-98d7-b08d2a5d3484">
+    
+
+    
+    
+    <link rel="stylesheet" type="text/css" href="/babilema/templates/css/style.css">
+    
+    
+
+    
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/bytebakersco.github.io\/babilema\/blog-intro"
+        },
+        "headline": "This blog post is actually a GitHub issue",
+        
+        "description": "A blog post about how GitHub issues were used as support for generating blog posts",
+        
+        
+        "image": "https:\/\/github.com\/ByteBakersCo\/babilema\/assets\/2111910\/351e35da-221a-4119-98d7-b08d2a5d3484",
+        
+        
+        "author": {
+            "@type": "Person",
+            "name": "Arthur Wallendorff"
+        },
+        
+        
+        "publisher": {
+            "@type": "Organization",
+            "name": "ByteBakers",
+        },
+        
+        "datePublished": "2024-03-21 23:41:09 \u002b0000 UTC",
+        
+        "dateModified": "2024-03-23 15:43:25 \u002b0000 UTC"
+        
+    }
+    </script>
+</head>
+
+<body>
+    
+    <header><div>
+    <a id="header-title" href="/">Babilema</a>
+    <a id="gh-cta" href="https://github.com/ByteBakersCo/babilema">
+        <img src="/templates/assets/gh-logo.png" alt="GitHub Logo" />
+        <span>View on GitHub</span>
+    </a>
+</div>
+</header>
+    
+    <main>
+        <div id="title">
+            <h1>This blog post is actually a GitHub issue</h1>
+            
+            <div id="author">
+                <p>By Arthur Wallendorff on March 21, 2024
+                    
+                    <br />Last modified on March 23, 2024
+                </p>
+                
+            </div>
+
+            
+        </div>
+        <p><em>Note: this article was written by GitHub Copilot based on basic info and the project readme. It is firstly intended to be part of the test and demo of Babilema on its own repo.</em></p>
+
+<p>I&rsquo;m excited to introduce Babilema, a minimalist static blog generator that turns GitHub issues into blog posts. Built in just 5 days, Babilema is a testament to the power and simplicity of Go, a language I&rsquo;ve recently started exploring.</p>
+
+<h3>Why Babilema?</h3>
+
+<p>As I embarked on my journey to learn Go, I wanted to create a project that would not only help me practice the language but also provide real value. With Babilema, I aimed to create a tool that is simple, minimalist, and easy to use, while also being powerful and flexible.</p>
+
+<p align="center">
+<img src="https://github.com/ByteBakersCo/babilema/assets/2111910/351e35da-221a-4119-98d7-b08d2a5d3484" alt="A friendly robot" />
+</p>
+
+<p>Babilema is designed to be used as a GitHub action, making it easy to integrate into your existing GitHub workflow. It&rsquo;s also somewhat customizable, allowing you to provide your own templates for a few files. And while it&rsquo;s already usable, I plan on adding more features as I use it for my <em>developer as a service</em> business this year.</p>
+
+<h3>Minimal Dependencies</h3>
+
+<p>One of the key design principles behind Babilema is to rely as much as possible on the standard library. This not only keeps the project lightweight but also reduces the potential for dependency-related issues.</p>
+
+<p>The only external dependencies I&rsquo;ve used are <a href="https://github.com/BurntSushi/toml">BurntSushi/toml</a> for parsing TOML files, <a href="https://github.com/gomarkdown/markdown">gomarkdown/markdown</a> for parsing Markdown, and <a href="https://github.com/google/go-github">google/go-github</a> for interacting with the GitHub API. These libraries are well-maintained and widely used, providing robust and reliable functionality.</p>
+
+<h3>How It Works</h3>
+
+<p>Babilema uses GitHub issues as the source for blog posts. Each issue should be written in Markdown with a TOML front matter, which includes metadata such as the title, slug, description, author, and tags.</p>
+
+<p>When you run Babilema, it fetches the issues from your GitHub repository, parses the front matter and the Markdown content, and generates a static HTML file for each blog post. It also generates an index.html file for your blog&rsquo;s homepage.
+In order to prevent random people to write on your blog, only admins and users with <code>write</code> permission on your repo will see their issues parsed and converted into blog posts.</p>
+
+<h3>Future Plans</h3>
+
+<p>While Babilema is already functional and usable, I have plans to add more features, such as support for custom scripts (JS), a &ldquo;related articles&rdquo; section generator, and support for custom metadata. I also plan to use goroutines to speed up the process.</p>
+
+<h3>Conclusion</h3>
+
+<p>Babilema is a simple and minimalistic static blog generator that demonstrates the power and simplicity of Go. Whether you&rsquo;re looking for a way to turn GitHub issues into blog posts, or you&rsquo;re interested in Go and want to see what it can do, I invite you to check out Babilema.</p>
+
+    </main>
+    
+    
+    <footer><div>
+    <p>Built from GitHub issues with <a href="https://github.com/ByteBakersCo/babilema" target="_blank">Babilema</a></p>
+</div>
+</footer>
+    
+</body>
+
+</html>
