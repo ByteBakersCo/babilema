@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"io"
 	"log"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -99,7 +100,7 @@ func extractPlainText(content template.HTML) string {
 	return result
 }
 
-func extractCSSLinks(cssDir string) ([]string, error) {
+func extractCSSLinks(cssDir string, cfg config.Config) ([]string, error) {
 	if cssDir == "" {
 		return nil, nil
 	}
@@ -117,6 +118,16 @@ func extractCSSLinks(cssDir string) ([]string, error) {
 				if err != nil {
 					return err
 				}
+
+				websiteURL, err := url.Parse(cfg.WebsiteURL)
+				if err != nil {
+					return err
+				}
+
+				relativeFilePath = filepath.Join(
+					websiteURL.Path,
+					relativeFilePath,
+				)
 
 				cssLinks = append(cssLinks, relativeFilePath)
 			}
@@ -138,6 +149,15 @@ func generateBlogIndexPage(
 ) error {
 	if len(articles) == 0 {
 		return nil
+	}
+
+	websiteURL, err := url.Parse(cfg.WebsiteURL)
+	if err != nil {
+		return err
+	}
+
+	for i := range articles {
+		articles[i].URL = filepath.Join(websiteURL.Path, articles[i].URL)
 	}
 
 	data := struct {
@@ -203,7 +223,7 @@ func GenerateBlogPosts(
 	}
 
 	data := templateData{}
-	data.CSSLinks, err = extractCSSLinks(cfg.CSSDir)
+	data.CSSLinks, err = extractCSSLinks(cfg.CSSDir, cfg)
 	if err != nil {
 		return err
 	}
@@ -235,8 +255,8 @@ func GenerateBlogPosts(
 
 			writer = outputFile
 
-			var url string
-			url, err = utils.RelativeFilePath(
+			var articleURL string
+			articleURL, err = utils.RelativeFilePath(
 				filepath.Join(cfg.OutputDir, filename),
 			)
 			if err != nil {
@@ -249,7 +269,7 @@ func GenerateBlogPosts(
 				Author:        data.Metadata.Author,
 				Preview:       template.HTML(extractPlainText(data.Content)),
 				DatePublished: data.Metadata.DatePublished,
-				URL:           url,
+				URL:           articleURL,
 			})
 		}
 
