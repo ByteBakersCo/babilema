@@ -17,4 +17,9 @@ jobs:
       uses: ByteBakersCo/babilema-action@v1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        github_context: ${{ toJson(github) }}
+
+    - name: 'Auto committing generated files'
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: "ci: auto commit generated files"
+        branch: ${{ github.head_ref }}
