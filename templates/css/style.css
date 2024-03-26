@@ -186,4 +186,12 @@ p.author-info {
     #gh-cta span {
         display: none;
     }
+
+    #article-content {
+        width: 90%;
+    }
+
+    #article-content img {
+        max-width: 100%;
+    }
 }
