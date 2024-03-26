@@ -1,0 +1,14 @@
+name: Run tests
+
+on: pull_request
+
+jobs:
+  generate-blog:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 'Check out code'
+      uses: actions/checkout@v4
+
+    - name: 'Run go test'
+      run: 'go test ./...'
