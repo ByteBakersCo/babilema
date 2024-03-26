@@ -62,7 +62,7 @@ func TestGenerateBlogPosts(t *testing.T) {
 			CSSDir:              filepath.Join(basePath, "test-data"),
 			TempDir:             filepath.Join(basePath, "test-data", "tmp"),
 			BlogPostIssuePrefix: "[BLOG]",
-			WebsiteURL:          "http://localhost:8080",
+			WebsiteURL:          "http://localhost:8080/foo",
 		},
 		&buf,
 	)
@@ -76,9 +76,9 @@ func TestGenerateBlogPosts(t *testing.T) {
 		<title>Test Title - Website name</title>
 
 
-		<link rel="stylesheet" type="text/css" href="/internal/generator/test-data/css/bar.css">
+		<link rel="stylesheet" type="text/css" href="/foo/internal/generator/test-data/css/bar.css">
 
-	<link rel="stylesheet" type="text/css" href="/internal/generator/test-data/foo.css">
+	<link rel="stylesheet" type="text/css" href="/foo/internal/generator/test-data/foo.css">
 
 
 	</head>
@@ -119,14 +119,14 @@ func TestGenerateBlogIndexPage(t *testing.T) {
 			Preview:       "Test preview",
 			Title:         "Test Title 1",
 			DatePublished: time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
-			URL:           "example.com",
+			URL:           "bar/baz.html",
 		},
 		{
 			Author:        "Test Author",
 			Preview:       "Test preview without an image",
 			Title:         "Test Title 2",
 			DatePublished: time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
-			URL:           "example.com",
+			URL:           "bar/qux.html",
 		},
 	}
 
@@ -149,7 +149,8 @@ func TestGenerateBlogIndexPage(t *testing.T) {
 				"test-data",
 				"footer.html",
 			),
-			OutputDir: filepath.Join(".", "test-data"),
+			OutputDir:  filepath.Join(".", "test-data"),
+			WebsiteURL: "https://localhost:8080/foo",
 		},
 		&buf,
 	)
@@ -166,23 +167,23 @@ func TestGenerateBlogIndexPage(t *testing.T) {
         </header>
         
         <article>
-        <a href="example.com">
+        <a href="/foo/bar/baz.html">
         <h1>Test Title 1</h1>
         </a>
         <p>Test preview</p>
         <p>Author: Test Author</p>
         <p>Published: 1970-01-01 00:00:00 &#43;0000 UTC</p>
-        <a href="example.com"><img src="test-data/image.jpg" alt="Test Title 1" /></a>
+        <a href="/foo/bar/baz.html"><img src="test-data/image.jpg" alt="Test Title 1" /></a>
         </article>
         
         <article>
-        <a href="example.com">
+        <a href="/foo/bar/qux.html">
         <h1>Test Title 2</h1>
         </a>
         <p>Test preview without an image</p>
         <p>Author: Test Author</p>
         <p>Published: 1970-01-01 00:00:00 &#43;0000 UTC</p>
-        <a href="example.com"><img src="" alt="Test Title 2" /></a>
+        <a href="/foo/bar/qux.html"><img src="" alt="Test Title 2" /></a>
         </article>
         
         <footer><div>Test Footer</div>

@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  generate-blog:
+  generate_blog:
     runs-on: ubuntu-latest
 
     steps:
