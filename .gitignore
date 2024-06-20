@@ -22,3 +22,4 @@ go.work
 NvimTree_1
 debug.sh
 node_modules
+notes/**
