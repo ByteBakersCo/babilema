@@ -59,3 +59,11 @@ func IsCommandAvailable(cmd string) bool {
 	command := exec.Command("/bin/sh", "-c", cmd)
 	return command.Run() == nil
 }
+
+func IsFileExist(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
+}
