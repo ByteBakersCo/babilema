@@ -28,3 +28,15 @@ func TestRelativeFilePath(t *testing.T) {
 		t.Errorf("Expected output to be %s, got %s", expected, actual)
 	}
 }
+
+func TestIsCommandAvailable(t *testing.T) {
+	cmd := "echo hello"
+	if !IsCommandAvailable(cmd) {
+		t.Errorf("Expected command to be available")
+	}
+
+	cmd = "qwfpbt"
+	if IsCommandAvailable(cmd) {
+		t.Errorf("Expected command to not be available")
+	}
+}

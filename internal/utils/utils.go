@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -52,4 +53,9 @@ func RelativeFilePath(path string) (string, error) {
 	}
 
 	return "/" + relativePath, nil
+}
+
+func IsCommandAvailable(cmd string) bool {
+	command := exec.Command("/bin/sh", "-c", cmd)
+	return command.Run() == nil
 }
