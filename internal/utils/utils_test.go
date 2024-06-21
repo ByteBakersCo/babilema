@@ -43,12 +43,12 @@ func TestIsCommandAvailable(t *testing.T) {
 
 func TestIsFileExist(t *testing.T) {
 	filePath := "utils.go"
-	if !IsFileExist(filePath) {
+	if !IsFileExists(filePath) {
 		t.Errorf("Expected file to exist")
 	}
 
 	filePath = "qwfpbt"
-	if IsFileExist(filePath) {
+	if IsFileExists(filePath) {
 		t.Errorf("Expected file to not exist")
 	}
 }
