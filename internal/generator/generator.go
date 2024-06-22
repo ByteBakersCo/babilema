@@ -20,6 +20,14 @@ import (
 
 const maxPreviewLength int = 240
 
+type templateEngine interface {
+	Generate(
+		templateFilePath string,
+		writer io.Writer,
+		data interface{},
+	) error
+}
+
 type templateData struct {
 	parser.ParsedIssue
 	Header   template.HTML
@@ -60,14 +68,29 @@ func moveGeneratedFilesToOutputDir(cfg config.Config) error {
 	return nil
 }
 
-func extractHTML(filePath string, data interface{}) (template.HTML, error) {
-	tmpl, err := template.ParseFiles(filePath)
-	if err != nil {
-		return "", err
+func newTemplateEngine(cfg config.Config) (templateEngine, error) {
+	switch cfg.TemplateEngine {
+	case config.EleventyTemplateEngine:
+		return NewEleventyTemplateEngine(cfg)
+	default:
+		if cfg.TemplateEngine != config.DefaultTemplateEngine &&
+			cfg.TemplateEngine != "" {
+			log.Printf(
+				"Unknown template engine: %s -- using default template engine (html/template)\n",
+				cfg.TemplateEngine,
+			)
+		}
+		return NewDefaultTemplateEngine(), nil
 	}
+}
 
+func extractHTML(
+	filePath string,
+	engine templateEngine,
+	data interface{},
+) (template.HTML, error) {
 	var buf bytes.Buffer
-	err = tmpl.Execute(&buf, data)
+	err := engine.Generate(filePath, &buf, data)
 	if err != nil {
 		return "", err
 	}
@@ -151,6 +174,11 @@ func generateBlogIndexPage(
 		return nil
 	}
 
+	engine, err := newTemplateEngine(cfg)
+	if err != nil {
+		return err
+	}
+
 	websiteURL, err := url.Parse(cfg.WebsiteURL)
 	if err != nil {
 		return err
@@ -168,18 +196,21 @@ func generateBlogIndexPage(
 		Articles: articles,
 	}
 
-	indexTemplate, err := template.ParseFiles(cfg.TemplateIndexFilePath)
-	if err != nil {
-		return err
-	}
-
 	// TODO: add possibility to inject custom data to header and footer
-	data.Header, err = extractHTML(cfg.TemplateHeaderFilePath, nil)
+	data.Header, err = extractHTML(
+		cfg.TemplateHeaderFilePath,
+		engine,
+		nil,
+	)
 	if err != nil {
 		return err
 	}
 
-	data.Footer, err = extractHTML(cfg.TemplateFooterFilePath, nil)
+	data.Footer, err = extractHTML(
+		cfg.TemplateFooterFilePath,
+		engine,
+		nil,
+	)
 	if err != nil {
 		return err
 	}
@@ -200,7 +231,7 @@ func generateBlogIndexPage(
 	}
 
 	log.Println("Generating blog index page...")
-	err = indexTemplate.Execute(writer, data)
+	err = engine.Generate(cfg.TemplateIndexFilePath, writer, data)
 	if err != nil {
 		return err
 	}
@@ -217,7 +248,8 @@ func GenerateBlogPosts(
 		return nil
 	}
 
-	postTemplate, err := template.ParseFiles(cfg.TemplatePostFilePath)
+	var err error
+	engine, err := newTemplateEngine(cfg)
 	if err != nil {
 		return err
 	}
@@ -229,12 +261,20 @@ func GenerateBlogPosts(
 	}
 
 	// TODO: add possibility to inject custom data to header and footer
-	data.Header, err = extractHTML(cfg.TemplateHeaderFilePath, nil)
+	data.Header, err = extractHTML(
+		cfg.TemplateHeaderFilePath,
+		engine,
+		nil,
+	)
 	if err != nil {
 		return err
 	}
 
-	data.Footer, err = extractHTML(cfg.TemplateFooterFilePath, nil)
+	data.Footer, err = extractHTML(
+		cfg.TemplateFooterFilePath,
+		engine,
+		nil,
+	)
 	if err != nil {
 		return err
 	}
@@ -274,7 +314,7 @@ func GenerateBlogPosts(
 		}
 
 		log.Println("Generating blog post:", data.Metadata.Slug)
-		err = postTemplate.Execute(writer, data)
+		err = engine.Generate(cfg.TemplatePostFilePath, writer, data)
 		if err != nil {
 			return err
 		}

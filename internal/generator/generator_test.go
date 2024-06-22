@@ -3,6 +3,7 @@ package generator
 import (
 	"bytes"
 	"html/template"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/ByteBakersCo/babilema/internal/config"
 	"github.com/ByteBakersCo/babilema/internal/parser"
+	"github.com/ByteBakersCo/babilema/internal/utils"
 )
 
 func normalize(s string) string {
@@ -38,6 +40,7 @@ func TestGenerateBlogPosts(t *testing.T) {
 	err := GenerateBlogPosts(
 		parsedFiles,
 		config.Config{
+			TemplateEngine: "default",
 			TemplatePostFilePath: filepath.Join(
 				basePath,
 				"test-data",
@@ -67,7 +70,99 @@ func TestGenerateBlogPosts(t *testing.T) {
 		&buf,
 	)
 	if err != nil {
-		t.Fatalf("failed to generate blog post: %s", err)
+		t.Errorf("failed to generate blog post: %s", err)
+	}
+
+	output := buf.String()
+
+	expectedOutput := `<head>
+		<title>Test Title - Website name</title>
+
+
+		<link rel="stylesheet" type="text/css" href="/foo/internal/generator/test-data/css/bar.css">
+
+	<link rel="stylesheet" type="text/css" href="/foo/internal/generator/test-data/foo.css">
+
+
+	</head>
+
+	<body>
+		<header><div>Test Header</div>
+	</header>
+		<h1>Test HTML</h1>
+		<footer><div>Test Footer</div>
+	</footer>
+	</body>
+`
+	if normalize(output) != normalize(expectedOutput) {
+		t.Errorf(
+			"Expected output to be '%s', got '%s'",
+			normalize(expectedOutput),
+			normalize(output),
+		)
+	}
+}
+
+func TestGenerateBlogPostsWithEleventy(t *testing.T) {
+	parsedFiles := []parser.ParsedIssue{
+		{
+			Metadata: parser.Metadata{
+				Title:     "Test Title",
+				BlogTitle: "Website name",
+			},
+			Content: template.HTML("<h1>Test HTML</h1>"),
+		},
+	}
+
+	defer func() {
+		rootDir, err := utils.RootDir()
+		if err != nil {
+			t.Errorf("[CLEANUP] failed to get root dir: %s", err)
+		}
+
+		err = os.Remove(filepath.Join(rootDir, defaultEleventyConfigFileName))
+		if err != nil {
+			t.Errorf("[CLEANUP] failed to remove eleventy config file: %s", err)
+		}
+	}()
+
+	_, file, _, _ := runtime.Caller(0)
+	basePath := filepath.Dir(file)
+	var buf bytes.Buffer
+	err := GenerateBlogPosts(
+		parsedFiles,
+		config.Config{
+			TemplateEngine: "eleventy",
+			TemplatePostFilePath: filepath.Join(
+				basePath,
+				"test-data",
+				"post.html",
+			),
+			TemplateHeaderFilePath: filepath.Join(
+				basePath,
+				"test-data",
+				"header.html",
+			),
+			TemplateFooterFilePath: filepath.Join(
+				basePath,
+				"test-data",
+				"footer.html",
+			),
+			TemplateIndexFilePath: filepath.Join(
+				basePath,
+				"test-data",
+				"index.html",
+			),
+			OutputDir:           filepath.Join(basePath, "test-data"),
+			CSSDir:              filepath.Join(basePath, "test-data"),
+			TempDir:             filepath.Join(basePath, "test-data", "tmp"),
+			BlogPostIssuePrefix: "[BLOG]",
+			WebsiteURL:          "http://localhost:8080/foo",
+		},
+		&buf,
+	)
+	if err != nil {
+		t.Errorf("failed to generate blog post: %s", err)
 	}
 
 	output := buf.String()
@@ -155,7 +250,7 @@ func TestGenerateBlogIndexPage(t *testing.T) {
 		&buf,
 	)
 	if err != nil {
-		t.Fatalf("failed to generate blog post: %s", err)
+		t.Errorf("failed to generate blog post: %s", err)
 	}
 
 	output := buf.String()
