@@ -15,17 +15,25 @@ import (
 
 const DefaultConfigFileName string = ".babilema.toml"
 
+type templateEngine string
+
+const (
+	DefaultTemplateEngine  templateEngine = "default"
+	EleventyTemplateEngine templateEngine = "eleventy"
+)
+
 type Config struct {
-	WebsiteURL             string `toml:"website_url"`
-	BlogTitle              string `toml:"blog_title"`
-	BlogPostIssuePrefix    string `toml:"blog_post_issue_prefix"`
-	TemplatePostFilePath   string `toml:"template_post_file_path"`
-	TemplateHeaderFilePath string `toml:"template_header_file_path"`
-	TemplateFooterFilePath string `toml:"template_footer_file_path"`
-	TemplateIndexFilePath  string `toml:"template_index_file_path"`
-	CSSDir                 string `toml:"css_dir"`
-	OutputDir              string `toml:"output_dir"`
-	TempDir                string `toml:"temp_dir"`
+	TemplateEngine         templateEngine `toml:"template_engine"`
+	WebsiteURL             string         `toml:"website_url"`
+	BlogTitle              string         `toml:"blog_title"`
+	BlogPostIssuePrefix    string         `toml:"blog_post_issue_prefix"`
+	TemplatePostFilePath   string         `toml:"template_post_file_path"`
+	TemplateHeaderFilePath string         `toml:"template_header_file_path"`
+	TemplateFooterFilePath string         `toml:"template_footer_file_path"`
+	TemplateIndexFilePath  string         `toml:"template_index_file_path"`
+	CSSDir                 string         `toml:"css_dir"`
+	OutputDir              string         `toml:"output_dir"`
+	TempDir                string         `toml:"temp_dir"`
 }
 
 func DefaultConfigPath() (string, error) {
@@ -39,6 +47,7 @@ func DefaultConfigPath() (string, error) {
 
 func defaultConfig(root string) Config {
 	return Config{
+		TemplateEngine:         DefaultTemplateEngine,
 		WebsiteURL:             "http://localhost:8080",
 		BlogTitle:              "",
 		BlogPostIssuePrefix:    "[BLOG]",
@@ -105,6 +114,8 @@ func fixPaths(cfg Config) (Config, error) {
 	cfg.TemplateIndexFilePath, _ = trimPath(cfg.TemplateIndexFilePath)
 	cfg.CSSDir, _ = trimPath(cfg.CSSDir)
 	cfg.OutputDir, _ = trimPath(cfg.OutputDir)
+	cfg.TempDir, _ = trimPath(cfg.TempDir)
+
 	cfg.TemplatePostFilePath = filepath.Join(
 		rootDir,
 		cfg.TemplatePostFilePath,
@@ -123,6 +134,7 @@ func fixPaths(cfg Config) (Config, error) {
 	)
 	cfg.CSSDir = filepath.Join(rootDir, cfg.CSSDir)
 	cfg.OutputDir = filepath.Join(rootDir, cfg.OutputDir)
+	cfg.TempDir = filepath.Join(rootDir, cfg.TempDir)
 
 	return cfg, nil
 }

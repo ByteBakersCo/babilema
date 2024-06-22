@@ -10,6 +10,7 @@ import (
 func TestLoadConfig(t *testing.T) {
 	root, _ := utils.RootDir()
 	expected := Config{
+		TemplateEngine:         DefaultTemplateEngine,
 		WebsiteURL:             "http://localhost:8080",
 		BlogTitle:              "",
 		BlogPostIssuePrefix:    "[BLOG]",
