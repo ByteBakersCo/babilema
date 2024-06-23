@@ -5,10 +5,13 @@ import (
 	"io"
 )
 
-type defaultTemplateEngine struct {
+type defaultTemplateRenderer struct{}
+
+func NewDefaultTemplateRenderer() defaultTemplateRenderer {
+	return defaultTemplateRenderer{}
 }
 
-func (defaultTemplateEngine) Generate(
+func (defaultTemplateRenderer) Render(
 	tempalteFilePath string,
 	writer io.Writer,
 	data interface{},
@@ -24,8 +27,4 @@ func (defaultTemplateEngine) Generate(
 	}
 
 	return nil
-}
-
-func NewDefaultTemplateEngine() defaultTemplateEngine {
-	return defaultTemplateEngine{}
 }

@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"golang.org/x/net/html"
 
@@ -20,19 +19,41 @@ import (
 
 const maxPreviewLength int = 240
 
-type templateEngine interface {
-	Generate(
+type templateRenderer interface {
+	Render(
 		templateFilePath string,
 		writer io.Writer,
 		data interface{},
 	) error
 }
 
-type templateData struct {
+func newTemplateRenderer(cfg config.Config) (templateRenderer, error) {
+	switch cfg.TemplateRenderer {
+	case config.EleventyTemplateRenderer:
+		return NewEleventyTemplateRenderer(cfg)
+	default:
+		if cfg.TemplateRenderer != config.DefaultTemplateRenderer &&
+			cfg.TemplateRenderer != "" {
+			log.Printf(
+				"Unknown template engine: %s -- using default template engine (html/template)\n",
+				cfg.TemplateRenderer,
+			)
+		}
+		return NewDefaultTemplateRenderer(), nil
+	}
+}
+
+type postTemplateData struct {
+	Header template.HTML
+	Footer template.HTML
 	parser.ParsedIssue
+	CSSLinks []string
+}
+
+type indexTemplateData struct {
 	Header   template.HTML
 	Footer   template.HTML
-	CSSLinks []string
+	Articles []article
 }
 
 type article struct {
@@ -40,10 +61,15 @@ type article struct {
 	Title         string
 	Author        string
 	Preview       template.HTML
-	DatePublished time.Time
+	DatePublished string
 	URL           string
 }
 
+// TODO(moveGeneratedFilesToOutputDir):
+// If output directory exists, backup the contents
+// If output directory does not exist, create it
+// If error occurs, delete generated files, restore backup, and return error
+// Make sure no file is deleted before everything is moved (including temp directory)
 func moveGeneratedFilesToOutputDir(cfg config.Config) error {
 	files, err := os.ReadDir(cfg.TempDir)
 	if err != nil {
@@ -66,36 +92,6 @@ func moveGeneratedFilesToOutputDir(cfg config.Config) error {
 	}
 
 	return nil
-}
-
-func newTemplateEngine(cfg config.Config) (templateEngine, error) {
-	switch cfg.TemplateEngine {
-	case config.EleventyTemplateEngine:
-		return NewEleventyTemplateEngine(cfg)
-	default:
-		if cfg.TemplateEngine != config.DefaultTemplateEngine &&
-			cfg.TemplateEngine != "" {
-			log.Printf(
-				"Unknown template engine: %s -- using default template engine (html/template)\n",
-				cfg.TemplateEngine,
-			)
-		}
-		return NewDefaultTemplateEngine(), nil
-	}
-}
-
-func extractHTML(
-	filePath string,
-	engine templateEngine,
-	data interface{},
-) (template.HTML, error) {
-	var buf bytes.Buffer
-	err := engine.Generate(filePath, &buf, data)
-	if err != nil {
-		return "", err
-	}
-
-	return template.HTML(buf.String()), nil
 }
 
 func extractPlainText(content template.HTML) string {
@@ -174,7 +170,7 @@ func generateBlogIndexPage(
 		return nil
 	}
 
-	engine, err := newTemplateEngine(cfg)
+	engine, err := newTemplateRenderer(cfg)
 	if err != nil {
 		return err
 	}
@@ -197,23 +193,20 @@ func generateBlogIndexPage(
 	}
 
 	// TODO: add possibility to inject custom data to header and footer
-	data.Header, err = extractHTML(
-		cfg.TemplateHeaderFilePath,
-		engine,
-		nil,
-	)
+	var header bytes.Buffer
+	err = engine.Render(cfg.TemplateHeaderFilePath, &header, nil)
 	if err != nil {
 		return err
 	}
 
-	data.Footer, err = extractHTML(
-		cfg.TemplateFooterFilePath,
-		engine,
-		nil,
-	)
+	var footer bytes.Buffer
+	err = engine.Render(cfg.TemplateFooterFilePath, &footer, nil)
 	if err != nil {
 		return err
 	}
+
+	data.Header = template.HTML(header.String())
+	data.Footer = template.HTML(footer.String())
 
 	writer := testOutputWriter
 	if writer == nil {
@@ -224,14 +217,13 @@ func generateBlogIndexPage(
 		if error != nil {
 			return error
 		}
-
 		defer outputFile.Close()
 
 		writer = outputFile
 	}
 
 	log.Println("Generating blog index page...")
-	err = engine.Generate(cfg.TemplateIndexFilePath, writer, data)
+	err = engine.Render(cfg.TemplateIndexFilePath, writer, data)
 	if err != nil {
 		return err
 	}
@@ -249,56 +241,60 @@ func GenerateBlogPosts(
 	}
 
 	var err error
-	engine, err := newTemplateEngine(cfg)
+	engine, err := newTemplateRenderer(cfg)
 	if err != nil {
 		return err
 	}
 
-	data := templateData{}
+	data := postTemplateData{}
 	data.CSSLinks, err = extractCSSLinks(cfg.CSSDir, cfg)
 	if err != nil {
 		return err
 	}
 
 	// TODO: add possibility to inject custom data to header and footer
-	data.Header, err = extractHTML(
-		cfg.TemplateHeaderFilePath,
-		engine,
-		nil,
-	)
+	var header bytes.Buffer
+	err = engine.Render(cfg.TemplateHeaderFilePath, &header, nil)
 	if err != nil {
 		return err
 	}
 
-	data.Footer, err = extractHTML(
-		cfg.TemplateFooterFilePath,
-		engine,
-		nil,
-	)
+	var footer bytes.Buffer
+	err = engine.Render(cfg.TemplateFooterFilePath, &footer, nil)
 	if err != nil {
 		return err
 	}
+
+	data.Header = template.HTML(header.String())
+	data.Footer = template.HTML(footer.String())
 
 	var articles []article
 	for _, issue := range parsedIssues {
 		data.ParsedIssue = issue
 		writer := testOutputWriter
-		filename := issue.Metadata.Slug + ".html"
-		path := filepath.Join(cfg.TempDir, filename)
+		path := filepath.Join(cfg.TempDir, issue.Metadata.Slug, "index.html")
+		relativePath := filepath.Join(
+			cfg.OutputDir,
+			issue.Metadata.Slug,
+			"index.html",
+		)
 
 		if writer == nil {
 			outputFile, error := os.Create(path)
 			if error != nil {
 				return error
 			}
-			defer outputFile.Close()
+
+			defer func() {
+				if cerr := outputFile.Close(); error == nil && err == nil {
+					err = cerr
+				}
+			}()
 
 			writer = outputFile
 
 			var articleURL string
-			articleURL, err = utils.RelativeFilePath(
-				filepath.Join(cfg.OutputDir, filename),
-			)
+			articleURL, err = utils.RelativeFilePath(relativePath)
 			if err != nil {
 				return err
 			}
@@ -314,7 +310,7 @@ func GenerateBlogPosts(
 		}
 
 		log.Println("Generating blog post:", data.Metadata.Slug)
-		err = engine.Generate(cfg.TemplatePostFilePath, writer, data)
+		err = engine.Render(cfg.TemplatePostFilePath, writer, data)
 		if err != nil {
 			return err
 		}

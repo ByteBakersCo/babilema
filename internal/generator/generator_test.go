@@ -40,7 +40,7 @@ func TestGenerateBlogPosts(t *testing.T) {
 	err := GenerateBlogPosts(
 		parsedFiles,
 		config.Config{
-			TemplateEngine: "default",
+			TemplateRenderer: "default",
 			TemplatePostFilePath: filepath.Join(
 				basePath,
 				"test-data",
@@ -103,7 +103,10 @@ func TestGenerateBlogPosts(t *testing.T) {
 	}
 }
 
+// TODO(test): merge the posts generation tests
 func TestGenerateBlogPostsWithEleventy(t *testing.T) {
+	defer mustCleanupEleventyConfigFile(t)
+
 	parsedFiles := []parser.ParsedIssue{
 		{
 			Metadata: parser.Metadata{
@@ -114,29 +117,17 @@ func TestGenerateBlogPostsWithEleventy(t *testing.T) {
 		},
 	}
 
-	defer func() {
-		rootDir, err := utils.RootDir()
-		if err != nil {
-			t.Errorf("[CLEANUP] failed to get root dir: %s", err)
-		}
-
-		err = os.Remove(filepath.Join(rootDir, defaultEleventyConfigFileName))
-		if err != nil {
-			t.Errorf("[CLEANUP] failed to remove eleventy config file: %s", err)
-		}
-	}()
-
 	_, file, _, _ := runtime.Caller(0)
 	basePath := filepath.Dir(file)
 	var buf bytes.Buffer
 	err := GenerateBlogPosts(
 		parsedFiles,
 		config.Config{
-			TemplateEngine: "eleventy",
+			TemplateRenderer: "eleventy",
 			TemplatePostFilePath: filepath.Join(
 				basePath,
 				"test-data",
-				"post.html",
+				"post.liquid",
 			),
 			TemplateHeaderFilePath: filepath.Join(
 				basePath,
@@ -151,7 +142,7 @@ func TestGenerateBlogPostsWithEleventy(t *testing.T) {
 			TemplateIndexFilePath: filepath.Join(
 				basePath,
 				"test-data",
-				"index.html",
+				"index.liquid",
 			),
 			OutputDir:           filepath.Join(basePath, "test-data"),
 			CSSDir:              filepath.Join(basePath, "test-data"),
@@ -209,42 +200,50 @@ This is a test with an image <img href="foo.jpg" alt="an image" />
 func TestGenerateBlogIndexPage(t *testing.T) {
 	articles := []article{
 		{
-			Image:         filepath.Join("test-data", "image.jpg"),
-			Author:        "Test Author",
-			Preview:       "Test preview",
-			Title:         "Test Title 1",
-			DatePublished: time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
-			URL:           "bar/baz.html",
+			Image:   filepath.Join("test-data", "image.jpg"),
+			Author:  "Test Author",
+			Preview: "Test preview",
+			Title:   "Test Title 1",
+			DatePublished: parser.FormatTime(
+				time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
+				config.DefaultDateLayout,
+			),
+			URL: "bar/baz.html",
 		},
 		{
-			Author:        "Test Author",
-			Preview:       "Test preview without an image",
-			Title:         "Test Title 2",
-			DatePublished: time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
-			URL:           "bar/qux.html",
+			Author:  "Test Author",
+			Preview: "Test preview without an image",
+			Title:   "Test Title 2",
+			DatePublished: parser.FormatTime(
+				time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
+				config.DefaultDateLayout,
+			),
+			URL: "bar/qux.html",
 		},
 	}
 
+	_, file, _, _ := runtime.Caller(0)
+	basePath := filepath.Dir(file)
 	var buf bytes.Buffer
 	err := generateBlogIndexPage(
 		articles,
 		config.Config{
 			TemplateIndexFilePath: filepath.Join(
-				".",
+				basePath,
 				"test-data",
 				"index.html",
 			),
 			TemplateHeaderFilePath: filepath.Join(
-				".",
+				basePath,
 				"test-data",
 				"header.html",
 			),
 			TemplateFooterFilePath: filepath.Join(
-				".",
+				basePath,
 				"test-data",
 				"footer.html",
 			),
-			OutputDir:  filepath.Join(".", "test-data"),
+			OutputDir:  filepath.Join(basePath, "test-data"),
 			WebsiteURL: "https://localhost:8080/foo",
 		},
 		&buf,
@@ -267,7 +266,7 @@ func TestGenerateBlogIndexPage(t *testing.T) {
         </a>
         <p>Test preview</p>
         <p>Author: Test Author</p>
-        <p>Published: 1970-01-01 00:00:00 &#43;0000 UTC</p>
+        <p>Published: 1970-01-01 00:00:00 UTC</p>
         <a href="/foo/bar/baz.html"><img src="test-data/image.jpg" alt="Test Title 1" /></a>
         </article>
         
@@ -277,7 +276,7 @@ func TestGenerateBlogIndexPage(t *testing.T) {
         </a>
         <p>Test preview without an image</p>
         <p>Author: Test Author</p>
-        <p>Published: 1970-01-01 00:00:00 &#43;0000 UTC</p>
+        <p>Published: 1970-01-01 00:00:00 UTC</p>
         <a href="/foo/bar/qux.html"><img src="" alt="Test Title 2" /></a>
         </article>
         
@@ -293,5 +292,119 @@ func TestGenerateBlogIndexPage(t *testing.T) {
 			normalize(expectedOutput),
 			normalize(output),
 		)
+	}
+}
+
+// TODO(test): merge the index generation tests
+func TestGenerateBlogIndexPageWithEleventy(t *testing.T) {
+	defer mustCleanupEleventyConfigFile(t)
+
+	articles := []article{
+		{
+			Image:   filepath.Join("test-data", "image.jpg"),
+			Author:  "Test Author",
+			Preview: "Test preview",
+			Title:   "Test Title 1",
+			DatePublished: parser.FormatTime(
+				time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
+				config.DefaultDateLayout,
+			),
+			URL: "bar/baz.html",
+		},
+		{
+			Author:  "Test Author",
+			Preview: "Test preview without an image",
+			Title:   "Test Title 2",
+			DatePublished: parser.FormatTime(
+				time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
+				config.DefaultDateLayout,
+			),
+			URL: "bar/qux.html",
+		},
+	}
+
+	_, file, _, _ := runtime.Caller(0)
+	basePath := filepath.Dir(file)
+	var buf bytes.Buffer
+	err := generateBlogIndexPage(
+		articles,
+		config.Config{
+			TemplateRenderer: config.EleventyTemplateRenderer,
+			TemplateIndexFilePath: filepath.Join(
+				basePath,
+				"test-data",
+				"index.liquid",
+			),
+			TemplateHeaderFilePath: filepath.Join(
+				basePath,
+				"test-data",
+				"header.html",
+			),
+			TemplateFooterFilePath: filepath.Join(
+				basePath,
+				"test-data",
+				"footer.html",
+			),
+			OutputDir:  filepath.Join(basePath, "test-data"),
+			WebsiteURL: "https://localhost:8080/foo",
+		},
+		&buf,
+	)
+	if err != nil {
+		t.Errorf("failed to generate blog post: %s", err)
+	}
+
+	output := buf.String()
+
+	expectedOutput := `<html>
+        
+        <body>
+        <header><div>Test Header</div>
+        </header>
+        
+        <article>
+        <a href="/foo/bar/baz.html">
+        <h1>Test Title 1</h1>
+        </a>
+        <p>Test preview</p>
+        <p>Author: Test Author</p>
+        <p>Published: 1970-01-01 00:00:00 UTC</p>
+        <a href="/foo/bar/baz.html"><img src="test-data/image.jpg" alt="Test Title 1" /></a>
+        </article>
+        
+        <article>
+        <a href="/foo/bar/qux.html">
+        <h1>Test Title 2</h1>
+        </a>
+        <p>Test preview without an image</p>
+        <p>Author: Test Author</p>
+        <p>Published: 1970-01-01 00:00:00 UTC</p>
+        <a href="/foo/bar/qux.html"><img src="" alt="Test Title 2" /></a>
+        </article>
+        
+        <footer><div>Test Footer</div>
+        </footer>
+        </body>
+        
+        </html>
+		`
+	if normalize(output) != normalize(expectedOutput) {
+		t.Errorf(
+			"Expected output to be '%s', got '%s'",
+			normalize(expectedOutput),
+			normalize(output),
+		)
+	}
+}
+
+func mustCleanupEleventyConfigFile(t *testing.T) {
+	rootDir, err := utils.RootDir()
+	if err != nil {
+		t.Errorf("[CLEANUP] failed to get root dir: %s", err)
+	}
+
+	err = os.Remove(filepath.Join(rootDir, defaultEleventyConfigFileName))
+	if err != nil {
+		t.Errorf("[CLEANUP] failed to remove eleventy config file: %s", err)
 	}
 }
