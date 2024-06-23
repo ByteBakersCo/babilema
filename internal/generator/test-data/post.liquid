@@ -1,0 +1,14 @@
+<head>
+    <title>{{ Metadata.Title }}{% if Metadata.BlogTitle %} - {{ Metadata.BlogTitle }}{% endif %}</title>
+    {% if CSSLinks.size > 0 %}
+    {% for link in CSSLinks %}
+    <link rel="stylesheet" type="text/css" href="{{ link }}">
+    {% endfor %}
+    {% endif %}
+</head>
+
+<body>
+    <header>{{ Header }}</header>
+    {{ Content }}
+    <footer>{{ Footer }}</footer>
+</body>
