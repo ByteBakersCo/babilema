@@ -54,3 +54,17 @@ func TestLoadConfig(t *testing.T) {
 		)
 	}
 }
+
+func TestTrimPath(t *testing.T) {
+	rootDir, _ := utils.RootDir()
+
+	expected := "foo/bar/baz"
+	actual, err := trimPath(filepath.Join(rootDir, "foo", "bar", "baz"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if expected != actual {
+		t.Errorf("expected %s, got %s", expected, actual)
+	}
+}
