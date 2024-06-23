@@ -78,23 +78,30 @@ This is a simple test post for Babilema`)
 
 func TestExtractMetadata(t *testing.T) {
 	expected := Metadata{
-		Title:         "Test post",
-		Slug:          "test-post",
-		BlogTitle:     "Overwritten Website name",
-		Description:   "This is a test post for Babilema",
-		Keywords:      []string{"test", "post", "babilema"},
-		Author:        "Babilema team",
-		Image:         "test-post.jpg",
-		Publisher:     "Babilema team",
-		Tags:          []string{"test", "post", "babilema"},
-		URL:           "example.com/test-post",
-		DatePublished: time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
-		DateModified:  time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
+		Title:       "Test post",
+		Slug:        "test-post",
+		BlogTitle:   "Overwritten Website name",
+		Description: "This is a test post for Babilema",
+		Keywords:    []string{"test", "post", "babilema"},
+		Author:      "Babilema team",
+		Image:       "test-post.jpg",
+		Publisher:   "Babilema team",
+		Tags:        []string{"test", "post", "babilema"},
+		URL:         "example.com/test-post/",
+		DatePublished: FormatTime(
+			time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
+			config.DefaultDateLayout,
+		),
+		DateModified: FormatTime(
+			time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
+			config.DefaultDateLayout,
+		),
 	}
 
 	actual, err := extractMetadata(
 		mockIssue(),
 		config.Config{
+			DateLayout: config.DefaultDateLayout,
 			BlogTitle:  "This should be ignored",
 			WebsiteURL: "example.com",
 		},
@@ -106,7 +113,10 @@ func TestExtractMetadata(t *testing.T) {
 	if !reflect.DeepEqual(actual, expected) {
 		t.Error(
 			utils.FormatStruct(expected, "Expected output to be"),
-			utils.FormatStruct(actual, "\ngot"),
+			utils.FormatStruct(
+				actual,
+				"\n--------------------got--------------------\n",
+			),
 		)
 	}
 

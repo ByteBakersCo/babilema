@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -20,22 +21,22 @@ import (
 )
 
 type Metadata struct {
-	Title       string // required
-	Slug        string // required
-	BlogTitle   string
-	Description string
-	Keywords    []string
-	Author      string
-	Image       string
-	Publisher   string
-	Tags        []string
+	// Determined at runtime
+	DatePublished string
+	DateModified  string
 
 	// Determined at runtime (WebsiteURL + Slug)
 	URL string
 
-	// Determined at runtime
-	DatePublished time.Time
-	DateModified  time.Time
+	Title       string // required
+	Slug        string // required
+	BlogTitle   string
+	Description string
+	Author      string
+	Image       string
+	Publisher   string
+	Keywords    []string
+	Tags        []string
 }
 
 type ParsedIssue struct {
@@ -52,6 +53,11 @@ func trimAllSpaces(array []string) []string {
 	}
 
 	return cleanSlice
+}
+
+func FormatTime(t time.Time, layout string) string {
+	timezone, _ := t.Zone()
+	return (t.Format(layout) + " " + timezone)
 }
 
 func checkRequiredMetadata(metadata Metadata) error {
@@ -105,11 +111,16 @@ func extractMetadata(issue github.Issue, cfg config.Config) (Metadata, error) {
 		return Metadata{}, err
 	}
 
-	metadata.DatePublished = issue.GetCreatedAt()
-	metadata.DateModified = issue.GetUpdatedAt()
+	metadata.DatePublished = FormatTime(issue.GetCreatedAt(), cfg.DateLayout)
+	metadata.DateModified = FormatTime(issue.GetUpdatedAt(), cfg.DateLayout)
 
+	// Since the actual url is {domain}/slug/index.html we need to remove the file extension
+	metadata.Slug = strings.TrimSuffix(
+		metadata.Slug,
+		filepath.Ext(metadata.Slug),
+	)
 	// This is important, the user cannot set a different URL on their post
-	metadata.URL = fmt.Sprintf("%s/%s", cfg.WebsiteURL, metadata.Slug)
+	metadata.URL = fmt.Sprintf("%s/%s/", cfg.WebsiteURL, metadata.Slug)
 
 	if metadata.BlogTitle == "" {
 		metadata.BlogTitle = cfg.BlogTitle
@@ -183,13 +194,16 @@ func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
 		return nil, err
 	}
 
+	var permissionLevel *github.RepositoryPermissionLevel
+	var metadata Metadata
+	var content []byte
 	var parsedIssues []ParsedIssue
 	for _, issue := range issues {
 		if !strings.HasPrefix(issue.GetTitle(), cfg.BlogPostIssuePrefix) {
 			continue
 		}
 
-		permissionLevel, _, err := client.Repositories.GetPermissionLevel(
+		permissionLevel, _, err = client.Repositories.GetPermissionLevel(
 			ctx,
 			owner,
 			repo,
@@ -206,7 +220,7 @@ func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
 			continue
 		}
 
-		metadata, err := extractMetadata(*issue, cfg)
+		metadata, err = extractMetadata(*issue, cfg)
 		if err != nil {
 			return nil, err
 		}
@@ -220,7 +234,7 @@ func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
 
 		postsHistory[metadata.Slug] = issue.GetUpdatedAt()
 
-		content, err := extractMarkdown([]byte(issue.GetBody()))
+		content, err = extractMarkdown([]byte(issue.GetBody()))
 		if err != nil {
 			return nil, err
 		}

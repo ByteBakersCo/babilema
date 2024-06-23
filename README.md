@@ -10,7 +10,9 @@ It is intended to be used as a GitHub action.
 
 - [Usage](#usage)
 - [Configuration file](#configuration-file)
+  * [About the template renderers/engines](#about-the-template-renderers-engines)
   * [Markdown metadata structure (AKA front matter)](#markdown-metadata-structure-aka-front-matter)
+  * [Date layout](#date-layout)
 - [Installation](#installation)
   * [Build from source](#build-from-source)
   * [Run from source](#run-from-source)
@@ -46,11 +48,13 @@ go run cmd/babilema/main.go --config /path/to/your/config.toml
 
 The default configuration file would look like this (if it wasn't built at runtime):
 ```toml 
+template_renderer = "default"               # "default" | "eleventy"
+date_layout = "2006-01-02 15:04:05"         # The format your dates should take, see below for the details
 website_url = "http://localhost:8080"       # The URL of your website
 blog_title = ""                             # The title of your blog, can be overwritten per issue
 blog_post_issue_prefix = "[BLOG]"           # The prefix of your blog post issues title
 output_dir = "{repo_root}/"                 # The directory where the generated html files will be saved
-temp_dir = "{repo_root}/tmp"                 # The directory where the temporary files will be saved
+temp_dir = "{repo_root}/tmp"                # The directory where the temporary files will be saved
 template_post_file_path = "{repo_root}/{output_dir}/templates/post.html"
 template_header_file_path = "{repo_root}/{output_dir}/templates/header.html"
 template_footer_file_path = "{repo_root}/{output_dir}/templates/footer.html"
@@ -63,6 +67,16 @@ css_dir = "{repo_root}/{output_dir}/templates/css" # The directory where the CSS
 By default, `output_dir` will be used to determine the root of all other paths and it will always be preceded by `{repo_root}`.  
 Meaning that if you leave `output_dir` empty, it will be equal to `{repo_root}`, if you set it to `blog/` it will be `{repo_root}/blog/`.  
 If you want to use a different directory for your templates, it will NOT be preceded by `output_dir` but only `{repo_root}`.  
+
+### About the template renderers/engines
+Currently, there are two templating solutions available: `default` and `eleventy`.  
+- `default` will use Go's `html/template` package to generate the HTML files.  
+- `eleventy` will use the [Eleventy](https://www.11ty.dev/) static site generator to generate the HTML files.  
+
+**Eleventy**
+Babilema expects to find a `.eleventy.js`|`eleventy.config.js`|`eleventy.config.cjs` file in the root of your repository.  
+If none is found, it will generate a default one for you.  
+Refer to Eleventy's [documentation](https://www.11ty.dev/docs/) for more information.  
 
 ### Markdown metadata structure (AKA front matter)
 Issues should be written in markdown with a **TOML** front matter.  
@@ -93,6 +107,66 @@ It uses GitHub issues as its source.
 Note that `blog_title` will override the values in the configuration file if it 
 is set on a particular issue.  
 You can find an example of a blog post in the issues.  
+
+### Date layout
+When specifying date and time formats in our CLI, we follow Go's `time.Format()` method conventions.  
+Babilema uses `2006-01-02 15:04:05` by default as the reference date.  
+
+To format dates and times, you replace parts of this reference date with your desired components. 
+Here's a comprehensive guide to the components you can use:
+
+*Note that you can use [Go's existing formatting constants](https://pkg.go.dev/time#pkg-constants) as well.*
+
+**Year**  
+- `06`: Year in two digits
+- `2006`: Year in four digits
+
+**Month**  
+- `1`: Month as a number (1-12)
+- `01`: Month as a two-digit number (01-12)
+- `Jan`: Abbreviated month name
+- `January`: Full month name
+
+**Day**  
+- `2`: Day of the month (1-31)
+- `_2`: Day of the month (space-padded, 1-31) - useful for fixed-width formatting
+- `02`: Day of the month as a two-digit number (01-31)
+
+**Weekday**  
+- `Mon`: Abbreviated weekday name
+- `Monday`: Full weekday name
+
+**Hour**  
+- `3`: Hour (12-hour clock, 1-12)
+- `03`: Hour as a two-digit number (12-hour clock, 01-12)
+- `15`: Hour (24-hour clock, 0-23)
+
+**Minute**  
+- `4`: Minute (0-59)
+- `04`: Minute as a two-digit number (00-59)
+
+**Second**  
+- `5`: Second (0-59)
+- `05`: Second as a two-digit number (00-59)
+
+**Millisecond and Microsecond**  
+- `.000`: Millisecond (000-999)
+- `.000000`: Microsecond (000000-999999)
+
+**Time Zone**  
+- `MST`: Time zone abbreviation
+- `-0700`: Time zone offset from UTC (hhmm)
+- `-07:00`: Time zone offset from UTC (hh:mm)
+- `Z0700`: Time zone offset from UTC with a leading Z for Zulu time (equivalent to UTC) (hhmm)
+- `Z07:00`: Time zone offset from UTC with a leading Z for Zulu time (hh:mm)
+
+**Examples**  
+- `2006-01-02`: Formats a date as `YYYY-MM-DD`.
+- `Jan 2, 2006`: Formats a date as `Month Day, Year`.
+- `15:04:05 MST`: Formats time with a 24-hour clock and time zone.
+- `3:04PM`: Formats time in a 12-hour clock with AM/PM.
+
+Use these components to construct the date and time format that best suits your needs.
 
 ## Installation
 ### Build from source
@@ -170,9 +244,10 @@ And use US English :D
 - [ ] Add support for custom scripts (JS)
 - [ ] Add "related articles" section generator
 - [x] Handle `index.html` file
-- [ ] Add testing blog on this repo
+- [x] Add testing blog on this repo
 - [ ] Add support for custom metadata
 - [ ] Add support for injecting data in header + footer
+- [ ] Use structured logging
 - [ ] (CI) Check if it's possible to trigger a rebuild on issue update
 - [ ] Make sure the injected paths (HTML) is correct on Windows
 - [ ] Add auto-optimization for preview images (?)

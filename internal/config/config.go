@@ -14,26 +14,28 @@ import (
 )
 
 const DefaultConfigFileName string = ".babilema.toml"
+const DefaultDateLayout string = "2006-01-02 15:04:05"
 
-type templateEngine string
+type templateRenderer string
 
 const (
-	DefaultTemplateEngine  templateEngine = "default"
-	EleventyTemplateEngine templateEngine = "eleventy"
+	DefaultTemplateRenderer  templateRenderer = "default"
+	EleventyTemplateRenderer templateRenderer = "eleventy"
 )
 
 type Config struct {
-	TemplateEngine         templateEngine `toml:"template_engine"`
-	WebsiteURL             string         `toml:"website_url"`
-	BlogTitle              string         `toml:"blog_title"`
-	BlogPostIssuePrefix    string         `toml:"blog_post_issue_prefix"`
-	TemplatePostFilePath   string         `toml:"template_post_file_path"`
-	TemplateHeaderFilePath string         `toml:"template_header_file_path"`
-	TemplateFooterFilePath string         `toml:"template_footer_file_path"`
-	TemplateIndexFilePath  string         `toml:"template_index_file_path"`
-	CSSDir                 string         `toml:"css_dir"`
-	OutputDir              string         `toml:"output_dir"`
-	TempDir                string         `toml:"temp_dir"`
+	TemplateRenderer       templateRenderer `toml:"template_renderer"`
+	DateLayout             string           `toml:"date_layout"`
+	WebsiteURL             string           `toml:"website_url"`
+	BlogTitle              string           `toml:"blog_title"`
+	BlogPostIssuePrefix    string           `toml:"blog_post_issue_prefix"`
+	TemplatePostFilePath   string           `toml:"template_post_file_path"`
+	TemplateHeaderFilePath string           `toml:"template_header_file_path"`
+	TemplateFooterFilePath string           `toml:"template_footer_file_path"`
+	TemplateIndexFilePath  string           `toml:"template_index_file_path"`
+	CSSDir                 string           `toml:"css_dir"`
+	OutputDir              string           `toml:"output_dir"`
+	TempDir                string           `toml:"temp_dir"`
 }
 
 func DefaultConfigPath() (string, error) {
@@ -47,7 +49,8 @@ func DefaultConfigPath() (string, error) {
 
 func defaultConfig(root string) Config {
 	return Config{
-		TemplateEngine:         DefaultTemplateEngine,
+		TemplateRenderer:       DefaultTemplateRenderer,
+		DateLayout:             DefaultDateLayout,
 		WebsiteURL:             "http://localhost:8080",
 		BlogTitle:              "",
 		BlogPostIssuePrefix:    "[BLOG]",
