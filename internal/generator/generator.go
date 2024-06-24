@@ -28,6 +28,10 @@ type templateRenderer interface {
 }
 
 func newTemplateRenderer(cfg config.Config) (templateRenderer, error) {
+	// cfg.TemplateRenderer = config.TemplateRenderer(
+	// 	strings.ToLower(string(cfg.TemplateRenderer)),
+	// )
+
 	switch cfg.TemplateRenderer {
 	case config.EleventyTemplateRenderer:
 		return NewEleventyTemplateRenderer(cfg)
@@ -43,16 +47,19 @@ func newTemplateRenderer(cfg config.Config) (templateRenderer, error) {
 	}
 }
 
-type postTemplateData struct {
-	Header template.HTML
-	Footer template.HTML
-	parser.ParsedIssue
+type templateData struct {
+	Header   template.HTML
+	Footer   template.HTML
 	CSSLinks []string
 }
 
+type postTemplateData struct {
+	templateData
+	parser.ParsedIssue
+}
+
 type indexTemplateData struct {
-	Header   template.HTML
-	Footer   template.HTML
+	templateData
 	Articles []article
 }
 
@@ -161,6 +168,39 @@ func extractCSSLinks(cssDir string, cfg config.Config) ([]string, error) {
 	return cssLinks, nil
 }
 
+func populateTemplateData(
+	renderer templateRenderer,
+	cfg config.Config,
+	headerData interface{},
+	footerData interface{},
+) (templateData, error) {
+	var err error
+	data := templateData{}
+
+	data.CSSLinks, err = extractCSSLinks(cfg.CSSDir, cfg)
+	if err != nil {
+		return templateData{}, err
+	}
+
+	var header bytes.Buffer
+	err = renderer.Render(cfg.TemplateHeaderFilePath, &header, headerData)
+	if err != nil {
+		return templateData{}, err
+	}
+
+	var footer bytes.Buffer
+	err = renderer.Render(cfg.TemplateFooterFilePath, &footer, footerData)
+	if err != nil {
+		return templateData{}, err
+	}
+
+	data.Header = template.HTML(header.String())
+	data.Footer = template.HTML(footer.String())
+
+	return data, nil
+}
+
+// TODO: add possibility to inject custom data to header and footer
 func generateBlogIndexPage(
 	articles []article,
 	cfg config.Config,
@@ -184,29 +224,11 @@ func generateBlogIndexPage(
 		articles[i].URL = filepath.Join(websiteURL.Path, articles[i].URL)
 	}
 
-	data := struct {
-		Header   template.HTML
-		Footer   template.HTML
-		Articles []article
-	}{
-		Articles: articles,
-	}
-
-	// TODO: add possibility to inject custom data to header and footer
-	var header bytes.Buffer
-	err = engine.Render(cfg.TemplateHeaderFilePath, &header, nil)
+	data := indexTemplateData{Articles: articles}
+	data.templateData, err = populateTemplateData(engine, cfg, nil, nil)
 	if err != nil {
 		return err
 	}
-
-	var footer bytes.Buffer
-	err = engine.Render(cfg.TemplateFooterFilePath, &footer, nil)
-	if err != nil {
-		return err
-	}
-
-	data.Header = template.HTML(header.String())
-	data.Footer = template.HTML(footer.String())
 
 	writer := testOutputWriter
 	if writer == nil {
@@ -217,7 +239,12 @@ func generateBlogIndexPage(
 		if error != nil {
 			return error
 		}
-		defer outputFile.Close()
+
+		defer func() {
+			if cerr := outputFile.Close(); error == nil && err == nil {
+				err = cerr
+			}
+		}()
 
 		writer = outputFile
 	}
@@ -231,6 +258,7 @@ func generateBlogIndexPage(
 	return nil
 }
 
+// TODO: add possibility to inject custom data to header and footer
 func GenerateBlogPosts(
 	parsedIssues []parser.ParsedIssue,
 	cfg config.Config,
@@ -246,41 +274,30 @@ func GenerateBlogPosts(
 		return err
 	}
 
-	data := postTemplateData{}
-	data.CSSLinks, err = extractCSSLinks(cfg.CSSDir, cfg)
+	var data postTemplateData
+	data.templateData, err = populateTemplateData(engine, cfg, nil, nil)
 	if err != nil {
 		return err
 	}
-
-	// TODO: add possibility to inject custom data to header and footer
-	var header bytes.Buffer
-	err = engine.Render(cfg.TemplateHeaderFilePath, &header, nil)
-	if err != nil {
-		return err
-	}
-
-	var footer bytes.Buffer
-	err = engine.Render(cfg.TemplateFooterFilePath, &footer, nil)
-	if err != nil {
-		return err
-	}
-
-	data.Header = template.HTML(header.String())
-	data.Footer = template.HTML(footer.String())
 
 	var articles []article
 	for _, issue := range parsedIssues {
 		data.ParsedIssue = issue
 		writer := testOutputWriter
-		path := filepath.Join(cfg.TempDir, issue.Metadata.Slug, "index.html")
-		relativePath := filepath.Join(
-			cfg.OutputDir,
-			issue.Metadata.Slug,
-			"index.html",
-		)
 
 		if writer == nil {
-			outputFile, error := os.Create(path)
+			outputFilePath := filepath.Join(
+				cfg.TempDir,
+				issue.Metadata.Slug,
+				"index.html",
+			)
+			relativePath := filepath.Join(
+				cfg.OutputDir,
+				issue.Metadata.Slug,
+				"index.html",
+			)
+
+			outputFile, error := os.Create(outputFilePath)
 			if error != nil {
 				return error
 			}
