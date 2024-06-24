@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strings"
 	"testing"
@@ -21,6 +22,44 @@ func normalize(s string) string {
 		lines[i] = strings.TrimSpace(line)
 	}
 	return strings.Join(lines, "\n")
+}
+
+func TestNewTemplateGenerator(t *testing.T) {
+	tests := []struct {
+		templateRenderer string
+		want             templateRenderer
+	}{
+		{templateRenderer: "notexisting", want: defaultTemplateRenderer{}},
+		{templateRenderer: "", want: defaultTemplateRenderer{}},
+		{templateRenderer: "default", want: defaultTemplateRenderer{}},
+		{templateRenderer: "Default", want: defaultTemplateRenderer{}},
+		{templateRenderer: "eleventy", want: eleventyTemplateRenderer{}},
+		{templateRenderer: "Eleventy", want: eleventyTemplateRenderer{}},
+	}
+
+	rootDir, err := utils.RootDir()
+	if err != nil {
+		t.Fatal("could not get root dir:", err)
+	}
+
+	for _, tt := range tests {
+		cfg := config.Config{
+			TemplateRenderer: config.TemplateRenderer(tt.templateRenderer),
+			OutputDir:        filepath.Join(rootDir, "test-data"),
+		}
+		testname := string(cfg.TemplateRenderer)
+
+		t.Run(testname, func(t *testing.T) {
+			renderer, err := newTemplateRenderer(cfg)
+			if err != nil {
+				t.Errorf("could not create new template renderer: %s", err)
+			}
+
+			if reflect.TypeOf(renderer) != reflect.TypeOf(tt.want) {
+				t.Fatalf("expected %v, got %v", tt.want, renderer)
+			}
+		})
+	}
 }
 
 func TestGenerateBlogPosts(t *testing.T) {
@@ -40,7 +79,7 @@ func TestGenerateBlogPosts(t *testing.T) {
 	err := GenerateBlogPosts(
 		parsedFiles,
 		config.Config{
-			TemplateRenderer: "default",
+			TemplateRenderer: config.DefaultTemplateRenderer,
 			TemplatePostFilePath: filepath.Join(
 				basePath,
 				"test-data",
@@ -123,7 +162,7 @@ func TestGenerateBlogPostsWithEleventy(t *testing.T) {
 	err := GenerateBlogPosts(
 		parsedFiles,
 		config.Config{
-			TemplateRenderer: "eleventy",
+			TemplateRenderer: config.EleventyTemplateRenderer,
 			TemplatePostFilePath: filepath.Join(
 				basePath,
 				"test-data",
