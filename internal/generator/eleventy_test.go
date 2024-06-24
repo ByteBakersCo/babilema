@@ -112,7 +112,7 @@ func TestCreateDataFile(t *testing.T) {
 		t.Errorf("expected %s, got %s", expected, result)
 	}
 
-	if _, err = os.Stat(result); os.IsNotExist(err) {
+	if !utils.IsFileAndExists(result) {
 		t.Fatal("data file does not exist")
 	}
 
@@ -133,7 +133,7 @@ func TestCreateConfigFile(t *testing.T) {
 		t.Fatal("could not create config file:", err)
 	}
 
-	if _, err = os.Stat(filePath); os.IsNotExist(err) {
+	if !utils.IsFileAndExists(filePath) {
 		t.Fatal("config file does not exist")
 	}
 
