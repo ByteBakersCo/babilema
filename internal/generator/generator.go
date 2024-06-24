@@ -28,9 +28,9 @@ type templateRenderer interface {
 }
 
 func newTemplateRenderer(cfg config.Config) (templateRenderer, error) {
-	// cfg.TemplateRenderer = config.TemplateRenderer(
-	// 	strings.ToLower(string(cfg.TemplateRenderer)),
-	// )
+	cfg.TemplateRenderer = config.TemplateRenderer(
+		strings.ToLower(string(cfg.TemplateRenderer)),
+	)
 
 	switch cfg.TemplateRenderer {
 	case config.EleventyTemplateRenderer:
