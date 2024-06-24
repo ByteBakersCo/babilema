@@ -16,15 +16,15 @@ import (
 const DefaultConfigFileName string = ".babilema.toml"
 const DefaultDateLayout string = "2006-01-02 15:04:05"
 
-type templateRenderer string
+type TemplateRenderer string
 
 const (
-	DefaultTemplateRenderer  templateRenderer = "default"
-	EleventyTemplateRenderer templateRenderer = "eleventy"
+	DefaultTemplateRenderer  TemplateRenderer = "default"
+	EleventyTemplateRenderer TemplateRenderer = "eleventy"
 )
 
 type Config struct {
-	TemplateRenderer       templateRenderer `toml:"template_renderer"`
+	TemplateRenderer       TemplateRenderer `toml:"template_renderer"`
 	DateLayout             string           `toml:"date_layout"`
 	WebsiteURL             string           `toml:"website_url"`
 	BlogTitle              string           `toml:"blog_title"`
@@ -161,6 +161,10 @@ func LoadConfig(configFilePath string) (Config, error) {
 
 	cfg, _ = fillEmptyConfigFields(cfg)
 	cfg, _ = fixPaths(cfg)
+
+	cfg.TemplateRenderer = TemplateRenderer(
+		strings.ToLower(string(cfg.TemplateRenderer)),
+	)
 
 	log.Println("Config loaded successfully from", configFilePath)
 
