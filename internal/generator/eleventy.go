@@ -3,6 +3,7 @@ package generator
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -50,6 +51,10 @@ func (renderer eleventyTemplateRenderer) Render(
 	writer io.Writer,
 	data interface{},
 ) error {
+	if _, err := os.Stat(templateFilePath); errors.Is(err, os.ErrNotExist) {
+		return fmt.Errorf("template file not found: %s", templateFilePath)
+	}
+
 	if !hasNode() {
 		return fmt.Errorf("node is not installed")
 	}
@@ -65,7 +70,7 @@ func (renderer eleventyTemplateRenderer) Render(
 	if data != nil {
 		fileName = extractFileName(writer)
 		if fileName == "" {
-			// Test writer is a buffer
+			// receiving a buffer
 			fileName = templateFilePath
 		}
 
