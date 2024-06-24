@@ -60,7 +60,7 @@ func IsCommandAvailable(cmd string) bool {
 	return command.Run() == nil
 }
 
-func IsFileExists(filename string) bool {
+func IsFileAndExists(filename string) bool {
 	info, err := os.Stat(filename)
 	if os.IsNotExist(err) {
 		return false
