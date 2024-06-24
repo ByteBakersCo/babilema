@@ -158,16 +158,13 @@ func createConfigFile(path string, cfg config.Config) error {
 	if err != nil {
 		return err
 	}
+	defer file.Close()
 
 	if _, err = file.WriteString(content); err != nil {
 		return err
 	}
 
-	if err = file.Close(); err != nil {
-		return err
-	}
-
-	return nil
+	return file.Sync()
 }
 
 func findConfigFile(cfg config.Config) (string, error) {
@@ -183,7 +180,7 @@ func findConfigFile(cfg config.Config) (string, error) {
 	}
 
 	for _, filename := range configFileNames {
-		if utils.IsFileExists(filename) {
+		if utils.IsFileAndExists(filename) {
 			return filename, nil
 		}
 	}
