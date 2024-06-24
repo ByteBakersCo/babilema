@@ -121,7 +121,14 @@ func TestExtractMetadata(t *testing.T) {
 	}
 
 	// Sad path
-	badActual, err := extractMetadata(badMockIssue(), config.Config{})
+	badActual, err := extractMetadata(
+		badMockIssue(),
+		config.Config{
+			DateLayout: "2026-11-11",
+			WebsiteURL: "foo.bar",
+			BlogTitle:  "foobar",
+		},
+	)
 	if err == nil {
 		t.Error(utils.FormatStruct(badActual, "Expected error, got"))
 	}

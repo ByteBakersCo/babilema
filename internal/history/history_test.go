@@ -24,6 +24,7 @@ func TestUpdateHistoryFile(t *testing.T) {
 	}
 	err := UpdateHistoryFile(history, config.Config{
 		OutputDir: ".",
+		TempDir:   ".",
 	})
 	if err != nil {
 		t.Error(err)
