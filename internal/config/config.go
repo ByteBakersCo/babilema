@@ -80,6 +80,10 @@ func trimPath(path string) (string, error) {
 }
 
 func fillEmptyConfigFields(cfg Config) (Config, error) {
+	if cfg.OutputDir == "" {
+		return Config{}, errors.New("output directory not set")
+	}
+
 	outputDir, err := trimPath(cfg.OutputDir)
 	if err != nil {
 		return Config{}, err
@@ -106,6 +110,34 @@ func fillEmptyConfigFields(cfg Config) (Config, error) {
 }
 
 func fixPaths(cfg Config) (Config, error) {
+	if cfg.TemplatePostFilePath == "" {
+		return Config{}, errors.New("post template file path not set")
+	}
+
+	if cfg.TemplateHeaderFilePath == "" {
+		return Config{}, errors.New("header template file path not set")
+	}
+
+	if cfg.TemplateFooterFilePath == "" {
+		return Config{}, errors.New("footer template file path not set")
+	}
+
+	if cfg.TemplateIndexFilePath == "" {
+		return Config{}, errors.New("index template file path not set")
+	}
+
+	if cfg.CSSDir == "" {
+		return Config{}, errors.New("css directory not set")
+	}
+
+	if cfg.OutputDir == "" {
+		return Config{}, errors.New("output directory not set")
+	}
+
+	if cfg.TempDir == "" {
+		return Config{}, errors.New("temp directory not set")
+	}
+
 	rootDir, err := utils.RootDir()
 	if err != nil {
 		return Config{}, err

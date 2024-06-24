@@ -82,6 +82,18 @@ func checkRequiredMetadata(metadata Metadata) error {
 }
 
 func extractMetadata(issue github.Issue, cfg config.Config) (Metadata, error) {
+	if cfg.DateLayout == "" {
+		return Metadata{}, errors.New("date layout not set")
+	}
+
+	if cfg.WebsiteURL == "" {
+		return Metadata{}, errors.New("website URL not set")
+	}
+
+	if cfg.BlogTitle == "" {
+		return Metadata{}, errors.New("blog title not set")
+	}
+
 	content := issue.GetBody()
 
 	lines := strings.Split(content, "\n")
@@ -166,6 +178,10 @@ func extractMarkdown(content []byte) ([]byte, error) {
 }
 
 func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
+	if cfg.TempDir == "" {
+		return nil, errors.New("temp dir not set")
+	}
+
 	ghToken := os.Getenv("GITHUB_TOKEN")
 	if ghToken == "" {
 		return nil, errors.New("GITHUB_TOKEN not set")
@@ -199,7 +215,8 @@ func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
 	var content []byte
 	var parsedIssues []ParsedIssue
 	for _, issue := range issues {
-		if !strings.HasPrefix(issue.GetTitle(), cfg.BlogPostIssuePrefix) {
+		if cfg.BlogPostIssuePrefix != "" &&
+			!strings.HasPrefix(issue.GetTitle(), cfg.BlogPostIssuePrefix) {
 			continue
 		}
 

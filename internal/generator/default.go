@@ -1,8 +1,11 @@
 package generator
 
 import (
+	"fmt"
 	"html/template"
 	"io"
+
+	"github.com/ByteBakersCo/babilema/internal/utils"
 )
 
 type defaultTemplateRenderer struct{}
@@ -12,17 +15,20 @@ func NewDefaultTemplateRenderer() defaultTemplateRenderer {
 }
 
 func (defaultTemplateRenderer) Render(
-	tempalteFilePath string,
+	templateFilePath string,
 	writer io.Writer,
 	data interface{},
 ) error {
-	tmplt, err := template.ParseFiles(tempalteFilePath)
+	if !utils.IsFileAndExists(templateFilePath) {
+		return fmt.Errorf("template file not found: %s", templateFilePath)
+	}
+
+	tmplt, err := template.ParseFiles(templateFilePath)
 	if err != nil {
 		return err
 	}
 
-	err = tmplt.Execute(writer, data)
-	if err != nil {
+	if err = tmplt.Execute(writer, data); err != nil {
 		return err
 	}
 

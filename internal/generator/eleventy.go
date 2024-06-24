@@ -51,7 +51,7 @@ func (renderer eleventyTemplateRenderer) Render(
 	writer io.Writer,
 	data interface{},
 ) error {
-	if _, err := os.Stat(templateFilePath); errors.Is(err, os.ErrNotExist) {
+	if !utils.IsFileAndExists(templateFilePath) {
 		return fmt.Errorf("template file not found: %s", templateFilePath)
 	}
 
@@ -145,6 +145,10 @@ func createDataFile(parentFilePath string, data interface{}) (string, error) {
 }
 
 func createConfigFile(path string, cfg config.Config) error {
+	if cfg.OutputDir == "" {
+		return errors.New("output directory is not set")
+	}
+
 	content := fmt.Sprintf(`module.exports = function(eleventyConfig) {
 	return {
 		dir: {

@@ -2,6 +2,7 @@ package generator
 
 import (
 	"bytes"
+	"errors"
 	"html/template"
 	"io"
 	"log"
@@ -78,6 +79,14 @@ type article struct {
 // If error occurs, delete generated files, restore backup, and return error
 // Make sure no file is deleted before everything is moved (including temp directory)
 func moveGeneratedFilesToOutputDir(cfg config.Config) error {
+	if cfg.TempDir == "" {
+		return errors.New("temp dir not set")
+	}
+
+	if cfg.OutputDir == "" {
+		return errors.New("output dir not set")
+	}
+
 	files, err := os.ReadDir(cfg.TempDir)
 	if err != nil {
 		return err
@@ -128,7 +137,11 @@ func extractPlainText(content template.HTML) string {
 
 func extractCSSLinks(cssDir string, cfg config.Config) ([]string, error) {
 	if cssDir == "" {
-		return nil, nil
+		return nil, errors.New("css directory not set")
+	}
+
+	if cfg.WebsiteURL == "" {
+		return nil, errors.New("website URL not set")
 	}
 
 	var cssLinks []string
@@ -210,6 +223,19 @@ func generateBlogIndexPage(
 		return nil
 	}
 
+	if cfg.WebsiteURL == "" {
+		return errors.New("website URL not set")
+	}
+
+	if cfg.TemplateIndexFilePath == "" {
+		return errors.New("index template file path not set")
+
+	}
+
+	if cfg.TempDir == "" {
+		return errors.New("temp dir not set")
+	}
+
 	engine, err := newTemplateRenderer(cfg)
 	if err != nil {
 		return err
@@ -266,6 +292,14 @@ func GenerateBlogPosts(
 ) error {
 	if len(parsedIssues) == 0 {
 		return nil
+	}
+
+	if cfg.TempDir == "" {
+		return errors.New("temp dir not set")
+	}
+
+	if cfg.OutputDir == "" {
+		return errors.New("output dir not set")
 	}
 
 	var err error
