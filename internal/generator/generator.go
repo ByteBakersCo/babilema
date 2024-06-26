@@ -5,6 +5,7 @@ import (
 	"errors"
 	"html/template"
 	"io"
+	"io/fs"
 	"log"
 	"net/url"
 	"os"
@@ -24,7 +25,7 @@ type templateRenderer interface {
 	Render(
 		templateFilePath string,
 		writer io.Writer,
-		data interface{},
+		data any,
 	) error
 }
 
@@ -73,41 +74,13 @@ type article struct {
 	URL           string
 }
 
-// TODO(moveGeneratedFilesToOutputDir):
-// If output directory exists, backup the contents
-// If output directory does not exist, create it
-// If error occurs, delete generated files, restore backup, and return error
-// Make sure no file is deleted before everything is moved (including temp directory)
 func moveGeneratedFilesToOutputDir(cfg config.Config) error {
-	if cfg.TempDir == "" {
-		return errors.New("temp dir not set")
-	}
-
-	if cfg.OutputDir == "" {
-		return errors.New("output dir not set")
-	}
-
-	files, err := os.ReadDir(cfg.TempDir)
+	err := utils.CopyDir(cfg.TempDir, cfg.OutputDir)
 	if err != nil {
 		return err
 	}
 
-	for _, file := range files {
-		src := filepath.Join(cfg.TempDir, file.Name())
-		dest := filepath.Join(cfg.OutputDir, file.Name())
-
-		err = os.Rename(src, dest)
-		if err != nil {
-			return err
-		}
-	}
-
-	err = os.RemoveAll(cfg.TempDir)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return os.RemoveAll(cfg.TempDir)
 }
 
 func extractPlainText(content template.HTML) string {
@@ -145,9 +118,14 @@ func extractCSSLinks(cssDir string, cfg config.Config) ([]string, error) {
 	}
 
 	var cssLinks []string
-	err := filepath.Walk(
+	err := filepath.WalkDir(
 		cssDir,
-		func(path string, info os.FileInfo, err error) error {
+		func(path string, entry fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+
+			info, err := entry.Info()
 			if err != nil {
 				return err
 			}
@@ -184,8 +162,8 @@ func extractCSSLinks(cssDir string, cfg config.Config) ([]string, error) {
 func populateTemplateData(
 	renderer templateRenderer,
 	cfg config.Config,
-	headerData interface{},
-	footerData interface{},
+	headerData any,
+	footerData any,
 ) (templateData, error) {
 	var err error
 	data := templateData{}
