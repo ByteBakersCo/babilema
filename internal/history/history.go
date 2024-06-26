@@ -2,6 +2,7 @@ package history
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -60,19 +61,28 @@ func UpdateHistoryFile(history map[string]time.Time, cfg config.Config) error {
 		0644,
 	)
 	if err != nil {
-		return err
+		return fmt.Errorf(
+			"UpdateHistoryFile(): %w",
+			err,
+		)
 	}
 	defer file.Close()
 
 	_, err = file.WriteString(warningComment)
 	if err != nil {
-		return err
+		return fmt.Errorf(
+			"UpdateHistoryFile(): %w",
+			err,
+		)
 	}
 
 	encoder := toml.NewEncoder(file)
 	err = encoder.Encode(History{Data: history})
 	if err != nil {
-		return err
+		return fmt.Errorf(
+			"UpdateHistoryFile(): cannot encode history data to TOML: %w",
+			err,
+		)
 	}
 
 	log.Println("History file updated.")
