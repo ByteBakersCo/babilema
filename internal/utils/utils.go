@@ -239,6 +239,7 @@ func copyDir(src, dest, backupDir string) error {
 	}
 
 	// WARN: recusion might cause stack overflow on deeply nested directories
+	// TODO: use goroutines
 	for _, entry := range srcDirContents {
 		srcPath := filepath.Join(src, entry.Name())
 		destPath := filepath.Join(dest, entry.Name())
