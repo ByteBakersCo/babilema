@@ -23,3 +23,5 @@ NvimTree_1
 debug.sh
 node_modules
 notes/**
+internal/generator/test-data/.DS_Store
+internal/generator/.DS_Store
