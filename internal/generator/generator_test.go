@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
+
 	"github.com/ByteBakersCo/babilema/internal/config"
 	"github.com/ByteBakersCo/babilema/internal/parser"
 	"github.com/ByteBakersCo/babilema/internal/utils"
@@ -24,7 +26,7 @@ func normalize(s string) string {
 	return strings.Join(lines, "\n")
 }
 
-func TestNewTemplateGenerator(t *testing.T) {
+func TestNewTemplateRenderer(t *testing.T) {
 	tests := []struct {
 		templateRenderer string
 		want             templateRenderer
@@ -37,26 +39,27 @@ func TestNewTemplateGenerator(t *testing.T) {
 		{templateRenderer: "Eleventy", want: eleventyTemplateRenderer{}},
 	}
 
-	rootDir, err := utils.RootDir()
-	if err != nil {
-		t.Fatal("could not get root dir:", err)
-	}
-
-	for _, tt := range tests {
+	_, file, _, _ := runtime.Caller(0)
+	basePath := filepath.Dir(file)
+	for _, test := range tests {
 		cfg := config.Config{
-			TemplateRenderer: config.TemplateRenderer(tt.templateRenderer),
-			OutputDir:        filepath.Join(rootDir, "test-data"),
+			TemplateRenderer: config.TemplateRenderer(test.templateRenderer),
+			OutputDir:        filepath.Join(basePath, "test-data"),
 		}
 		testname := string(cfg.TemplateRenderer)
 
 		t.Run(testname, func(t *testing.T) {
 			renderer, err := newTemplateRenderer(cfg)
 			if err != nil {
-				t.Errorf("could not create new template renderer: %s", err)
+				t.Errorf("could not create new template renderer: %v", err)
 			}
 
-			if reflect.TypeOf(renderer) != reflect.TypeOf(tt.want) {
-				t.Fatalf("expected %v, got %v", tt.want, renderer)
+			if reflect.TypeOf(renderer) != reflect.TypeOf(test.want) {
+				t.Fatalf(
+					"NewTemplateRenderer() typeOf: %v, want %v",
+					renderer,
+					test.want,
+				)
 			}
 		})
 	}
@@ -109,12 +112,11 @@ func TestGenerateBlogPosts(t *testing.T) {
 		&buf,
 	)
 	if err != nil {
-		t.Errorf("failed to generate blog post: %s", err)
+		t.Errorf("failed to generate blog post: %v", err)
 	}
 
-	output := buf.String()
-
-	expectedOutput := `<head>
+	got := normalize(buf.String())
+	want := normalize(`<head>
 		<title>Test Title - Website name</title>
 
 
@@ -132,19 +134,16 @@ func TestGenerateBlogPosts(t *testing.T) {
 		<footer><div>Test Footer</div>
 	</footer>
 	</body>
-`
-	if normalize(output) != normalize(expectedOutput) {
-		t.Errorf(
-			"Expected output to be '%s', got '%s'",
-			normalize(expectedOutput),
-			normalize(output),
-		)
+`)
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("GenerateBlogPosts(default) mismatch (-want +got):\n%s", diff)
 	}
 }
 
 // TODO(test): merge the posts generation tests
 func TestGenerateBlogPostsWithEleventy(t *testing.T) {
-	defer mustCleanupEleventyConfigFile(t)
+	defer cleanupEleventyConfigFile(t)
 
 	parsedFiles := []parser.ParsedIssue{
 		{
@@ -192,12 +191,11 @@ func TestGenerateBlogPostsWithEleventy(t *testing.T) {
 		&buf,
 	)
 	if err != nil {
-		t.Errorf("failed to generate blog post: %s", err)
+		t.Errorf("failed to generate blog post: %v", err)
 	}
 
-	output := buf.String()
-
-	expectedOutput := `<head>
+	got := normalize(buf.String())
+	want := normalize(`<head>
 		<title>Test Title - Website name</title>
 
 
@@ -215,24 +213,30 @@ func TestGenerateBlogPostsWithEleventy(t *testing.T) {
 		<footer><div>Test Footer</div>
 	</footer>
 	</body>
-`
-	if normalize(output) != normalize(expectedOutput) {
+`)
+
+	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf(
-			"Expected output to be '%s', got '%s'",
-			normalize(expectedOutput),
-			normalize(output),
+			"GenerateBlogPosts(eleventy) mismatch (-want +got):\n%s",
+			diff,
 		)
 	}
 }
 
 func TestExtractPlainText(t *testing.T) {
-	expected := "This is a test with an image"
-	actual := extractPlainText(template.HTML(`<b>
+	input := `<b>
 This is a test with an image <img href="foo.jpg" alt="an image" />
-</b>`))
+</b>`
 
-	if actual != expected {
-		t.Errorf("Expected '%s', got '%s'", expected, actual)
+	want := normalize("This is a test with an image")
+	got := normalize(extractPlainText(template.HTML(input)))
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf(
+			"extractPlainText(%s) mismatch (-want +got):\n%s",
+			input,
+			diff,
+		)
 	}
 }
 
@@ -294,12 +298,11 @@ func TestGenerateBlogIndexPage(t *testing.T) {
 		&buf,
 	)
 	if err != nil {
-		t.Errorf("failed to generate blog post: %s", err)
+		t.Errorf("failed to generate blog post: %v", err)
 	}
 
-	output := buf.String()
-
-	expectedOutput := `<html>
+	got := normalize(buf.String())
+	want := normalize(`<html>
         
         <body>
         <header><div>Test Header</div>
@@ -330,19 +333,19 @@ func TestGenerateBlogIndexPage(t *testing.T) {
         </body>
         
         </html>
-		`
-	if normalize(output) != normalize(expectedOutput) {
+		`)
+
+	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf(
-			"Expected output to be '%s', got '%s'",
-			normalize(expectedOutput),
-			normalize(output),
+			"generateBlogIndexPage(default) mismatch (-want +got):\n%s",
+			diff,
 		)
 	}
 }
 
 // TODO(test): merge the index generation tests
 func TestGenerateBlogIndexPageWithEleventy(t *testing.T) {
-	defer mustCleanupEleventyConfigFile(t)
+	defer cleanupEleventyConfigFile(t)
 
 	articles := []article{
 		{
@@ -401,12 +404,11 @@ func TestGenerateBlogIndexPageWithEleventy(t *testing.T) {
 		&buf,
 	)
 	if err != nil {
-		t.Errorf("failed to generate blog post: %s", err)
+		t.Errorf("failed to generate blog post: %v", err)
 	}
 
-	output := buf.String()
-
-	expectedOutput := `<html>
+	got := normalize(buf.String())
+	want := normalize(`<html>
         
         <body>
         <header><div>Test Header</div>
@@ -437,24 +439,184 @@ func TestGenerateBlogIndexPageWithEleventy(t *testing.T) {
         </body>
         
         </html>
-		`
-	if normalize(output) != normalize(expectedOutput) {
+		`)
+
+	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf(
-			"Expected output to be '%s', got '%s'",
-			normalize(expectedOutput),
-			normalize(output),
+			"generateBlogIndexPage(eleventy) mismatch (-want +got):\n%s",
+			diff,
 		)
 	}
 }
 
-func mustCleanupEleventyConfigFile(t *testing.T) {
+// TODO: not really useful anymore, should test the utils
+func TestMoveGeneratedFilesToOutputDir(t *testing.T) {
+	_, file, _, _ := runtime.Caller(0)
+	basePath := filepath.Dir(file)
+
+	tempDir := filepath.Join(basePath, "test-data", "tmp")
+	outputDir := filepath.Join(basePath, "test-data", "out")
+	cfg := config.Config{
+		TempDir:   tempDir,
+		OutputDir: outputDir,
+	}
+
+	t.Run("HAPPY PATH", func(t *testing.T) {
+		t.Cleanup(func() {
+			os.RemoveAll(tempDir)
+			os.RemoveAll(outputDir)
+		})
+
+		err := os.Mkdir(tempDir, 0755)
+		if err != nil {
+			if os.IsExist(err) {
+				err = os.RemoveAll(tempDir)
+				if err != nil {
+					t.Errorf(
+						"moveGeneratedFilesToOutputDir() - could not remove temp dir: %v",
+						err,
+					)
+				}
+			} else {
+				t.Errorf(
+					"moveGeneratedFilesToOutputDir() - could not create temp dir: %v",
+					err,
+				)
+			}
+		}
+
+		filenames := []string{"foo.txt", "bar.qux.md"}
+		newFilePaths := []string{
+			filepath.Join(tempDir, "subdir", filenames[0]),
+			filepath.Join(tempDir, filenames[1]),
+		}
+
+		for _, path := range newFilePaths {
+			err = os.MkdirAll(filepath.Dir(path), 0755)
+			if err != nil {
+				t.Errorf(
+					"moveGeneratedFilesToOutputDir() - could not create subdir: %v",
+					err,
+				)
+			}
+
+			_, err = os.Create(path)
+			if err != nil {
+				t.Errorf(
+					"moveGeneratedFilesToOutputDir() - could not create test file: %v",
+					err,
+				)
+			}
+		}
+
+		if _, err = os.Stat(cfg.OutputDir); os.IsExist(err) {
+			err = os.RemoveAll(cfg.OutputDir)
+			if err != nil {
+				t.Errorf(
+					"moveGeneratedFilesToOutputDir() - could not remove existing output dir: %v",
+					err,
+				)
+			}
+		}
+
+		err = moveGeneratedFilesToOutputDir(cfg)
+		if err != nil {
+			t.Errorf("moveGeneratedFilesToOutputDir(): %v", err)
+		}
+
+		if _, err = os.Stat(cfg.OutputDir); os.IsNotExist(err) {
+			t.Errorf(
+				"moveGeneratedFilesToOutputDir() - output dir was not created: %v",
+				err,
+			)
+		}
+
+		if _, err = os.Stat(cfg.TempDir); os.IsExist(err) {
+			t.Errorf(
+				"moveGeneratedFilesToOutputDir() - temp dir was not removed: %v",
+				err,
+			)
+		}
+
+		movedFiles, err := os.ReadDir(cfg.OutputDir)
+		if err != nil {
+			t.Errorf(
+				"moveGeneratedFilesToOutputDir() - could not read output dir: %v",
+				err,
+			)
+		}
+
+		if len(movedFiles) != 2 {
+			t.Errorf(
+				"moveGeneratedFilesToOutputDir() - There are %d moved files instead of 2",
+				len(movedFiles),
+			)
+		}
+
+		for _, file := range movedFiles {
+			t.Logf("file: %v", file.Name())
+			t.Logf("file.IsDir(): %v", file.IsDir())
+
+			path := filepath.Join(cfg.OutputDir, file.Name())
+
+			if file.IsDir() {
+				subFiles, err := os.ReadDir(path)
+				if err != nil {
+					t.Errorf(
+						"moveGeneratedFilesToOutputDir() - could not read subdir: %v",
+						err,
+					)
+				}
+
+				if len(subFiles) != 1 {
+					t.Errorf(
+						"moveGeneratedFilesToOutputDir() - There are %d files in subdir instead of 1",
+						len(subFiles),
+					)
+				}
+
+				if subFiles[0].Name() != filenames[0] {
+					t.Errorf(
+						"moveGeneratedFilesToOutputDir() in subdir, file found: %q, want %q",
+						subFiles[0].Name(),
+						filenames[0],
+					)
+				}
+			} else {
+				if file.Name() != filenames[1] {
+					t.Errorf(
+						"moveGeneratedFilesToOutputDir() in output dir, file found: %q, want %q", file.Name(), filenames[1],
+					)
+				}
+			}
+		}
+
+	})
+
+	// happy path
+	// Create cfg.TempDir
+	// in dir 1: create file, dir/file, dir/subdir/file
+	// if cfg.Outputdir does not exists -> create it
+	// all files should be moved to outputdir
+	// tempdir should have been removed at the end
+
+	// sad path
+	// if cfg.TempDir == "" -> return error
+	// if cfg.OutputDir == "" -> return error
+	// if cfg.TempDir does not exist -> return error
+	// if cfg.TempDir is not a directory -> return error
+	// if cfg.Outputdir is not a directory -> return error
+
+}
+
+func cleanupEleventyConfigFile(t *testing.T) {
 	rootDir, err := utils.RootDir()
 	if err != nil {
-		t.Errorf("[CLEANUP] failed to get root dir: %s", err)
+		t.Errorf("[CLEANUP] failed to get root dir: %v", err)
 	}
 
 	err = os.Remove(filepath.Join(rootDir, defaultEleventyConfigFileName))
 	if err != nil {
-		t.Errorf("[CLEANUP] failed to remove eleventy config file: %s", err)
+		t.Errorf("[CLEANUP] failed to remove eleventy config file: %v", err)
 	}
 }
