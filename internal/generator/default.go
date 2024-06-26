@@ -17,7 +17,7 @@ func NewDefaultTemplateRenderer() defaultTemplateRenderer {
 func (defaultTemplateRenderer) Render(
 	templateFilePath string,
 	writer io.Writer,
-	data interface{},
+	data any,
 ) error {
 	if !utils.IsFileAndExists(templateFilePath) {
 		return fmt.Errorf("template file not found: %s", templateFilePath)

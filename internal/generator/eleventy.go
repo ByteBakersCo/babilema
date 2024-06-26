@@ -49,7 +49,7 @@ type parsedData struct {
 func (renderer eleventyTemplateRenderer) Render(
 	templateFilePath string,
 	writer io.Writer,
-	data interface{},
+	data any,
 ) error {
 	if !utils.IsFileAndExists(templateFilePath) {
 		return fmt.Errorf("template file not found: %s", templateFilePath)
@@ -121,7 +121,7 @@ func (renderer eleventyTemplateRenderer) Render(
 	return nil
 }
 
-func createDataFile(parentFilePath string, data interface{}) (string, error) {
+func createDataFile(parentFilePath string, data any) (string, error) {
 	dataFilePath := strings.TrimSuffix(
 		parentFilePath,
 		filepath.Ext(parentFilePath),
