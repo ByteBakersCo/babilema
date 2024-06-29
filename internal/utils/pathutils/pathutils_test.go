@@ -1,4 +1,4 @@
-package utils
+package pathutils
 
 import (
 	"os"
@@ -26,29 +26,5 @@ func TestRelativeFilePath(t *testing.T) {
 	)
 	if actual != expected {
 		t.Errorf("Expected output to be %s, got %s", expected, actual)
-	}
-}
-
-func TestIsCommandAvailable(t *testing.T) {
-	cmd := "echo hello"
-	if !IsCommandAvailable(cmd) {
-		t.Errorf("Expected command to be available")
-	}
-
-	cmd = "qwfpbt"
-	if IsCommandAvailable(cmd) {
-		t.Errorf("Expected command to not be available")
-	}
-}
-
-func TestIsFileExist(t *testing.T) {
-	filePath := "utils.go"
-	if !IsFileAndExists(filePath) {
-		t.Errorf("Expected file to exist")
-	}
-
-	filePath = "qwfpbt"
-	if IsFileAndExists(filePath) {
-		t.Errorf("Expected file to not exist")
 	}
 }
