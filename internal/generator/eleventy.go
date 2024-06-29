@@ -51,8 +51,13 @@ func (renderer eleventyTemplateRenderer) Render(
 	writer io.Writer,
 	data any,
 ) error {
-	if !utils.IsFileAndExists(templateFilePath) {
-		return fmt.Errorf("template file not found: %s", templateFilePath)
+	info, err := os.Stat(templateFilePath)
+	if err != nil {
+		return fmt.Errorf("Render(%q): %w", templateFilePath, err)
+	}
+
+	if info.IsDir() {
+		return fmt.Errorf("Render(%q): is a directory", templateFilePath)
 	}
 
 	if !hasNode() {
@@ -64,17 +69,16 @@ func (renderer eleventyTemplateRenderer) Render(
 	}
 
 	// Data population
-	var fileName string
+	var filename string
 	var dataFilePath string
-	var err error
 	if data != nil {
-		fileName = extractFileName(writer)
-		if fileName == "" {
+		filename = extractFileName(writer)
+		if filename == "" {
 			// receiving a buffer
-			fileName = templateFilePath
+			filename = templateFilePath
 		}
 
-		dataFilePath, err = createDataFile(fileName, data)
+		dataFilePath, err = createDataFile(filename, data)
 		if err != nil {
 			return err
 		}
@@ -183,10 +187,25 @@ func findConfigFile(cfg config.Config) (string, error) {
 		filepath.Join(rootDir, "eleventy.config.cjs"),
 	}
 
+	var info os.FileInfo
 	for _, filename := range configFileNames {
-		if utils.IsFileAndExists(filename) {
-			return filename, nil
+		info, err = os.Stat(filename)
+		if err != nil && errors.Is(err, os.ErrNotExist) {
+			continue
 		}
+
+		if err != nil {
+			return "", fmt.Errorf("findConfigFile(): %w", err)
+		}
+
+		if info.IsDir() {
+			return "", fmt.Errorf(
+				"findConfigFile(): %q is a directory",
+				filename,
+			)
+		}
+
+		return filename, nil
 	}
 
 	log.Println(
@@ -210,11 +229,12 @@ func extractFileName(writer io.Writer) string {
 }
 
 func hasNode() bool {
-	cmd := "node --version"
-	return utils.IsCommandAvailable(cmd)
+	command := exec.Command("/bin/sh", "-c", "node --version")
+	return command.Run() == nil
 }
 
 func hasEleventy() bool {
 	cmd := eleventyCommand + " --help"
-	return utils.IsCommandAvailable(cmd)
+	command := exec.Command("/bin/sh", "-c", cmd)
+	return command.Run() == nil
 }

@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-
-	"github.com/ByteBakersCo/babilema/internal/utils"
+	"os"
 )
 
 type defaultTemplateRenderer struct{}
@@ -19,8 +18,13 @@ func (defaultTemplateRenderer) Render(
 	writer io.Writer,
 	data any,
 ) error {
-	if !utils.IsFileAndExists(templateFilePath) {
-		return fmt.Errorf("template file not found: %s", templateFilePath)
+	info, err := os.Stat(templateFilePath)
+	if err != nil {
+		return fmt.Errorf("Render(%q): %w", templateFilePath, err)
+	}
+
+	if info.IsDir() {
+		return fmt.Errorf("Render(%q): is a directory", templateFilePath)
 	}
 
 	tmplt, err := template.ParseFiles(templateFilePath)

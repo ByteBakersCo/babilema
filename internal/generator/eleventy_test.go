@@ -108,12 +108,12 @@ func TestCreateDataFile(t *testing.T) {
 		t.Fatal("could not create data file:", err)
 	}
 
-	if result != expected {
-		t.Errorf("expected %s, got %s", expected, result)
+	if _, err = os.Stat(result); err != nil {
+		t.Fatal("data file does not exist")
 	}
 
-	if !utils.IsFileAndExists(result) {
-		t.Fatal("data file does not exist")
+	if result != expected {
+		t.Errorf("expected %s, got %s", expected, result)
 	}
 
 	if err = os.Remove(result); err != nil {
@@ -133,7 +133,7 @@ func TestCreateConfigFile(t *testing.T) {
 		t.Fatal("could not create config file:", err)
 	}
 
-	if !utils.IsFileAndExists(filePath) {
+	if _, err = os.Stat(filePath); err != nil {
 		t.Fatal("config file does not exist")
 	}
 
