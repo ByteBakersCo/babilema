@@ -16,7 +16,8 @@ import (
 
 	"github.com/ByteBakersCo/babilema/internal/config"
 	"github.com/ByteBakersCo/babilema/internal/parser"
-	"github.com/ByteBakersCo/babilema/internal/utils"
+	"github.com/ByteBakersCo/babilema/internal/utils/copyutils"
+	"github.com/ByteBakersCo/babilema/internal/utils/pathutils"
 )
 
 const maxPreviewLength int = 240
@@ -75,7 +76,7 @@ type article struct {
 }
 
 func moveGeneratedFilesToOutputDir(cfg config.Config) error {
-	err := utils.CopyDir(cfg.TempDir, cfg.OutputDir)
+	err := copyutils.CopyDir(cfg.TempDir, cfg.OutputDir)
 	if err != nil {
 		return err
 	}
@@ -131,7 +132,7 @@ func extractCSSLinks(cssDir string, cfg config.Config) ([]string, error) {
 			}
 
 			if !info.IsDir() && strings.HasSuffix(path, ".css") {
-				relativeFilePath, err := utils.RelativeFilePath(path)
+				relativeFilePath, err := pathutils.RelativeFilePath(path)
 				if err != nil {
 					return err
 				}
@@ -163,7 +164,7 @@ func populateTemplateData(
 	renderer templateRenderer,
 	cfg config.Config,
 	headerData any,
-	footerData any,
+	footerData interface{},
 ) (templateData, error) {
 	var err error
 	data := templateData{}
@@ -323,7 +324,7 @@ func GenerateBlogPosts(
 			writer = outputFile
 
 			var articleURL string
-			articleURL, err = utils.RelativeFilePath(relativePath)
+			articleURL, err = pathutils.RelativeFilePath(relativePath)
 			if err != nil {
 				return err
 			}
