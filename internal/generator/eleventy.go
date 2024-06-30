@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/ByteBakersCo/babilema/internal/config"
-	"github.com/ByteBakersCo/babilema/internal/utils"
+	"github.com/ByteBakersCo/babilema/internal/utils/pathutils"
 )
 
 const eleventyCommand string = "npx eleventy"
@@ -176,7 +176,7 @@ func createConfigFile(path string, cfg config.Config) error {
 }
 
 func findConfigFile(cfg config.Config) (string, error) {
-	rootDir, err := utils.RootDir()
+	rootDir, err := pathutils.RootDir()
 	if err != nil {
 		return "", err
 	}

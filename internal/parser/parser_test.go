@@ -9,7 +9,7 @@ import (
 	"github.com/google/go-github/github"
 
 	"github.com/ByteBakersCo/babilema/internal/config"
-	"github.com/ByteBakersCo/babilema/internal/utils"
+	"github.com/ByteBakersCo/babilema/internal/utils/testutils"
 )
 
 func mockIssue() github.Issue {
@@ -112,8 +112,8 @@ func TestExtractMetadata(t *testing.T) {
 
 	if !reflect.DeepEqual(actual, expected) {
 		t.Error(
-			utils.FormatStruct(expected, "Expected output to be"),
-			utils.FormatStruct(
+			testutils.FormatStruct(expected, "Expected output to be"),
+			testutils.FormatStruct(
 				actual,
 				"\n--------------------got--------------------\n",
 			),
@@ -130,7 +130,7 @@ func TestExtractMetadata(t *testing.T) {
 		},
 	)
 	if err == nil {
-		t.Error(utils.FormatStruct(badActual, "Expected error, got"))
+		t.Error(testutils.FormatStruct(badActual, "Expected error, got"))
 	}
 	missingMetadata := []string{
 		"Slug",

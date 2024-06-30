@@ -9,8 +9,7 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
-
-	"github.com/ByteBakersCo/babilema/internal/utils"
+	"github.com/ByteBakersCo/babilema/internal/utils/pathutils"
 )
 
 const DefaultConfigFileName string = ".babilema.toml"
@@ -39,7 +38,7 @@ type Config struct {
 }
 
 func DefaultConfigPath() (string, error) {
-	rootDir, err := utils.RootDir()
+	rootDir, err := pathutils.RootDir()
 	if err != nil {
 		return "", err
 	}
@@ -65,7 +64,7 @@ func defaultConfig(root string) Config {
 }
 
 func trimPath(path string) (string, error) {
-	rootDir, err := utils.RootDir()
+	rootDir, err := pathutils.RootDir()
 	if err != nil {
 		return "", err
 	}
@@ -89,7 +88,7 @@ func fillEmptyConfigFields(cfg Config) (Config, error) {
 		return Config{}, err
 	}
 
-	rootDir, _ := utils.RootDir()
+	rootDir, _ := pathutils.RootDir()
 	cfg.OutputDir = filepath.Join(rootDir, outputDir)
 
 	defaultCfg := defaultConfig(cfg.OutputDir)
@@ -138,7 +137,7 @@ func fixPaths(cfg Config) (Config, error) {
 		return Config{}, errors.New("temp directory not set")
 	}
 
-	rootDir, err := utils.RootDir()
+	rootDir, err := pathutils.RootDir()
 	if err != nil {
 		return Config{}, err
 	}
@@ -175,7 +174,7 @@ func fixPaths(cfg Config) (Config, error) {
 }
 
 func LoadConfig(configFilePath string) (Config, error) {
-	rootDir, err := utils.RootDir()
+	rootDir, err := pathutils.RootDir()
 	if err != nil {
 		return Config{}, err
 	}

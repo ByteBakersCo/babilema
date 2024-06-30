@@ -342,21 +342,23 @@ func copyDir(
 					)
 				} else {
 					if backupDir != "" {
-						newFileInfo, err := entry.Info()
+						var newFileInfo fs.FileInfo
+						newFileInfo, err = entry.Info()
 						if err != nil {
-							return err
+							return fmt.Errorf("copyDir(%q, %q): %w", src, dest, err)
 						}
 
-						oldFileInfo, err := os.Stat(filepath.Join(destPath, entry.Name()))
+						var oldFileInfo fs.FileInfo
+						oldFileInfo, err = os.Stat(filepath.Join(destPath, entry.Name()))
 						if err != nil {
-							return err
+							return fmt.Errorf("copyDir(%q, %q): %w", src, dest, err)
 						}
 
 						isModified := newFileInfo.ModTime().After(oldFileInfo.ModTime())
 						if isModified {
 							backupPath := filepath.Join(backupDir, entry.Name())
 							if err = CopyFile(destPath, backupPath); err != nil && !errors.Is(err, fs.ErrNotExist) {
-								return err
+								return fmt.Errorf("copyDir(%q, %q): %w", src, dest, err)
 							}
 
 							err = rollbacker.AddCopyFileRollbackAction(backupPath, destPath)

@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/ByteBakersCo/babilema/internal/config"
-	"github.com/ByteBakersCo/babilema/internal/utils"
+	"github.com/ByteBakersCo/babilema/internal/utils/pathutils"
 )
 
 /*
@@ -143,7 +143,7 @@ func TestCreateConfigFile(t *testing.T) {
 }
 
 func TestFindConfigFile(t *testing.T) {
-	rootDir, err := utils.RootDir()
+	rootDir, err := pathutils.RootDir()
 	if err != nil {
 		t.Fatal("could not get root directory:", err)
 	}
