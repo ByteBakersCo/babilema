@@ -20,9 +20,21 @@ func TestRootDir(t *testing.T) {
 
 func TestRelativeFilePath(t *testing.T) {
 	rootDir, _ := RootDir()
-	expected := filepath.Join("/", "internal", "utils", "utils.go")
+	expected := filepath.Join(
+		"/",
+		"internal",
+		"utils",
+		"pathutils",
+		"pathutils.go",
+	)
 	actual, _ := RelativeFilePath(
-		filepath.Join(rootDir, "internal", "utils", "utils.go"),
+		filepath.Join(
+			rootDir,
+			"internal",
+			"utils",
+			"pathutils",
+			"pathutils.go",
+		),
 	)
 	if actual != expected {
 		t.Errorf("Expected output to be %s, got %s", expected, actual)
