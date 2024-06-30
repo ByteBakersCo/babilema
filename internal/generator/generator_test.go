@@ -2,7 +2,10 @@ package generator
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"html/template"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -15,7 +18,7 @@ import (
 
 	"github.com/ByteBakersCo/babilema/internal/config"
 	"github.com/ByteBakersCo/babilema/internal/parser"
-	"github.com/ByteBakersCo/babilema/internal/utils"
+	"github.com/ByteBakersCo/babilema/internal/utils/pathutils"
 )
 
 func normalize(s string) string {
@@ -449,7 +452,6 @@ func TestGenerateBlogIndexPageWithEleventy(t *testing.T) {
 	}
 }
 
-// TODO: not really useful anymore, should test the utils
 func TestMoveGeneratedFilesToOutputDir(t *testing.T) {
 	_, file, _, _ := runtime.Caller(0)
 	basePath := filepath.Dir(file)
@@ -461,65 +463,50 @@ func TestMoveGeneratedFilesToOutputDir(t *testing.T) {
 		OutputDir: outputDir,
 	}
 
-	t.Run("HAPPY PATH", func(t *testing.T) {
-		t.Cleanup(func() {
-			os.RemoveAll(tempDir)
-			os.RemoveAll(outputDir)
-		})
+	filenames := []string{"foo.txt", "bar.qux.md"}
+	newFilePaths := []string{
+		filepath.Join(tempDir, "subdir", filenames[0]),
+		filepath.Join(tempDir, filenames[1]),
+	}
 
-		err := os.Mkdir(tempDir, 0755)
-		if err != nil {
-			if os.IsExist(err) {
-				err = os.RemoveAll(tempDir)
-				if err != nil {
-					t.Errorf(
-						"moveGeneratedFilesToOutputDir() - could not remove temp dir: %v",
-						err,
-					)
-				}
-			} else {
-				t.Errorf(
-					"moveGeneratedFilesToOutputDir() - could not create temp dir: %v",
-					err,
-				)
-			}
-		}
+	cleanup := func() {
+		os.RemoveAll(tempDir)
+		os.RemoveAll(outputDir)
+	}
 
-		filenames := []string{"foo.txt", "bar.qux.md"}
-		newFilePaths := []string{
-			filepath.Join(tempDir, "subdir", filenames[0]),
-			filepath.Join(tempDir, filenames[1]),
+	setup := func() {
+		serr := os.Mkdir(tempDir, 0755)
+		if serr != nil {
+			t.Fatalf(
+				"moveGeneratedFilesToOutputDir() [SETUP] tempdir: %v",
+				serr,
+			)
 		}
 
 		for _, path := range newFilePaths {
-			err = os.MkdirAll(filepath.Dir(path), 0755)
-			if err != nil {
-				t.Errorf(
-					"moveGeneratedFilesToOutputDir() - could not create subdir: %v",
-					err,
+			serr = os.MkdirAll(filepath.Dir(path), 0755)
+			if serr != nil {
+				t.Fatalf(
+					"moveGeneratedFilesToOutputDir() [SETUP] subdir: %v",
+					serr,
 				)
 			}
 
-			_, err = os.Create(path)
-			if err != nil {
-				t.Errorf(
-					"moveGeneratedFilesToOutputDir() - could not create test file: %v",
-					err,
-				)
-			}
-		}
-
-		if _, err = os.Stat(cfg.OutputDir); os.IsExist(err) {
-			err = os.RemoveAll(cfg.OutputDir)
-			if err != nil {
-				t.Errorf(
-					"moveGeneratedFilesToOutputDir() - could not remove existing output dir: %v",
-					err,
+			_, serr = os.Create(path)
+			if serr != nil {
+				t.Fatalf(
+					"moveGeneratedFilesToOutputDir() [SETUP]: %v",
+					serr,
 				)
 			}
 		}
+	}
 
-		err = moveGeneratedFilesToOutputDir(cfg)
+	t.Run("HAPPY PATH", func(t *testing.T) {
+		t.Cleanup(cleanup)
+		setup()
+
+		err := moveGeneratedFilesToOutputDir(cfg)
 		if err != nil {
 			t.Errorf("moveGeneratedFilesToOutputDir(): %v", err)
 		}
@@ -546,10 +533,11 @@ func TestMoveGeneratedFilesToOutputDir(t *testing.T) {
 			)
 		}
 
-		if len(movedFiles) != 2 {
+		if len(movedFiles) != len(newFilePaths) {
 			t.Errorf(
-				"moveGeneratedFilesToOutputDir() - There are %d moved files instead of 2",
+				"moveGeneratedFilesToOutputDir() - There are %d moved files instead of %d",
 				len(movedFiles),
+				len(newFilePaths),
 			)
 		}
 
@@ -593,24 +581,73 @@ func TestMoveGeneratedFilesToOutputDir(t *testing.T) {
 
 	})
 
-	// happy path
-	// Create cfg.TempDir
-	// in dir 1: create file, dir/file, dir/subdir/file
-	// if cfg.Outputdir does not exists -> create it
-	// all files should be moved to outputdir
-	// tempdir should have been removed at the end
+	t.Run("SAD PATH", func(t *testing.T) {
+		t.Cleanup(cleanup)
 
-	// sad path
-	// if cfg.TempDir == "" -> return error
-	// if cfg.OutputDir == "" -> return error
-	// if cfg.TempDir does not exist -> return error
-	// if cfg.TempDir is not a directory -> return error
-	// if cfg.Outputdir is not a directory -> return error
+		err := moveGeneratedFilesToOutputDir(cfg)
+		if err == nil {
+			t.Errorf("moveGeneratedFilesToOutputDir() - expected error")
+		}
 
+		if err != nil && !errors.Is(err, fs.ErrNotExist) {
+			t.Errorf(
+				"moveGeneratedFilesToOutputDir() - expected fs.ErrNotExist error, got: %v",
+				err,
+			)
+		}
+
+		badCfg := config.Config{}
+		err = moveGeneratedFilesToOutputDir(badCfg)
+		if err != nil {
+			t.Errorf(
+				"moveGeneratedFilesToOutputDir() - expected nil, got: %v",
+				err,
+			)
+		}
+
+		badCfg.TempDir = "/foo"
+		err = moveGeneratedFilesToOutputDir(badCfg)
+		if err == nil {
+			t.Errorf("moveGeneratedFilesToOutputDir() - expected error")
+		}
+
+		if err != nil && !errors.Is(err, fs.ErrNotExist) {
+			t.Errorf(
+				"moveGeneratedFilesToOutputDir() - expected fs.ErrNotExist error, got: %v",
+				err,
+			)
+		}
+
+		setup()
+		badCfg.TempDir = tempDir
+		badCfg.OutputDir = filepath.Join(outputDir, filenames[0])
+		_, err = os.Create(filepath.Join(outputDir, filenames[0]))
+		if err != nil {
+			return
+		}
+
+		err = moveGeneratedFilesToOutputDir(badCfg)
+		if err == nil {
+			t.Errorf("moveGeneratedFilesToOutputDir() - expected error")
+		}
+
+		if err != nil &&
+			err.Error() != fmt.Sprintf(
+				"copyDir(%q, %q): mkdir %v: not a directory",
+				badCfg.TempDir,
+				badCfg.OutputDir,
+				badCfg.OutputDir,
+			) {
+			t.Errorf(
+				"moveGeneratedFilesToOutputDir() - expected \"not a directory\" error, got: %v",
+				err,
+			)
+		}
+	})
 }
 
 func cleanupEleventyConfigFile(t *testing.T) {
-	rootDir, err := utils.RootDir()
+	rootDir, err := pathutils.RootDir()
 	if err != nil {
 		t.Errorf("[CLEANUP] failed to get root dir: %v", err)
 	}
