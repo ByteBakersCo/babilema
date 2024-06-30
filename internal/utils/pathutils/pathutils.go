@@ -12,7 +12,7 @@ func RootDir() (string, error) {
 	isRunningTest := flag.Lookup("test.v") != nil
 	if isRunningTest {
 		_, file, _, _ := runtime.Caller(0)
-		return filepath.Join(filepath.Dir(file), "..", ".."), nil
+		return filepath.Join(filepath.Dir(file), "..", "..", ".."), nil
 	}
 
 	executable, err := os.Executable()
