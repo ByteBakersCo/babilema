@@ -72,7 +72,7 @@ func (cr *copyRollbacker) AddCopyFileRollbackAction(
 		info, err := os.Stat(src)
 		if err != nil {
 			return fmt.Errorf(
-				"AddCopyRollbackAction(%q, %q): %w",
+				"AddCopyFileRollbackAction(%q, %q): %w",
 				src,
 				dest,
 				err,
@@ -81,7 +81,7 @@ func (cr *copyRollbacker) AddCopyFileRollbackAction(
 
 		if info.IsDir() {
 			return fmt.Errorf(
-				"AddCopyRollbackAction(%q, %q): source is a directory",
+				"AddCopyFileRollbackAction(%q, %q): source is a directory",
 				src,
 				dest,
 			)
@@ -90,7 +90,7 @@ func (cr *copyRollbacker) AddCopyFileRollbackAction(
 		info, err = os.Stat(dest)
 		if err != nil && !errors.Is(err, fs.ErrNotExist) {
 			return fmt.Errorf(
-				"AddCopyRollbackAction(%q, %q): %w",
+				"AddCopyFileRollbackAction(%q, %q): %w",
 				src,
 				dest,
 				err,
@@ -99,7 +99,7 @@ func (cr *copyRollbacker) AddCopyFileRollbackAction(
 
 		if err == nil && info.IsDir() {
 			return fmt.Errorf(
-				"AddCopyRollbackAction(%q, %q): destination is a directory",
+				"AddCopyFileRollbackAction(%q, %q): destination is a directory",
 				src,
 				dest,
 			)
@@ -109,7 +109,7 @@ func (cr *copyRollbacker) AddCopyFileRollbackAction(
 			err = os.Remove(dest)
 			if err != nil {
 				return fmt.Errorf(
-					"AddCopyRollbackAction(%q, %q): %w",
+					"AddCopyFileRollbackAction(%q, %q): %w",
 					src,
 					dest,
 					err,
@@ -120,7 +120,7 @@ func (cr *copyRollbacker) AddCopyFileRollbackAction(
 		err = CopyFile(src, dest)
 		if err != nil {
 			return fmt.Errorf(
-				"AddCopyRollbackAction(%q, %q): %w",
+				"AddCopyFileRollbackAction(%q, %q): %w",
 				src,
 				dest,
 				err,
@@ -300,7 +300,23 @@ func CopyDir(src string, dest string) error {
 		return fmt.Errorf("CopyDir(%q, %q): %w", src, dest, err)
 	}
 
-	return copyDir(context.Background(), src, dest, backupDir, rollbacker)
+	err = copyDir(context.Background(), src, dest, backupDir, rollbacker)
+	if err != nil {
+		rerr := rollbacker.Rollback()
+		if rerr != nil {
+			return fmt.Errorf(
+				"CopyDir(%q, %q) [Rollback]: %w; (original error: %w)",
+				src,
+				dest,
+				rerr,
+				err,
+			)
+		}
+
+		return fmt.Errorf("CopyDir(%q, %q): %w", src, dest, err)
+	}
+
+	return nil
 }
 
 // copyDir copies a directory from src to dest. If backupDir is not empty, it
@@ -323,7 +339,6 @@ func copyDir(
 	// WARN: recusion might cause stack overflow on deeply nested directories
 	errGroup, ctx := errgroup.WithContext(ctx)
 	for _, entry := range srcDirContents {
-		// entry := entry
 		errGroup.Go(func() error {
 			select {
 			case <-ctx.Done():
@@ -349,21 +364,23 @@ func copyDir(
 						}
 
 						var oldFileInfo fs.FileInfo
-						oldFileInfo, err = os.Stat(filepath.Join(destPath, entry.Name()))
-						if err != nil {
+						oldFileInfo, err = os.Stat(filepath.Join(destPath))
+						if err != nil && !errors.Is(err, fs.ErrNotExist) {
 							return fmt.Errorf("copyDir(%q, %q): %w", src, dest, err)
 						}
 
-						isModified := newFileInfo.ModTime().After(oldFileInfo.ModTime())
-						if isModified {
-							backupPath := filepath.Join(backupDir, entry.Name())
-							if err = CopyFile(destPath, backupPath); err != nil && !errors.Is(err, fs.ErrNotExist) {
-								return fmt.Errorf("copyDir(%q, %q): %w", src, dest, err)
-							}
+						if err == nil {
+							isModified := newFileInfo.ModTime().After(oldFileInfo.ModTime())
+							if isModified {
+								backupPath := filepath.Join(backupDir, entry.Name())
+								if err = CopyFile(destPath, backupPath); err != nil && !errors.Is(err, fs.ErrNotExist) {
+									return fmt.Errorf("copyDir(%q, %q): %w", src, dest, err)
+								}
 
-							err = rollbacker.AddCopyFileRollbackAction(backupPath, destPath)
-							if err != nil {
-								return fmt.Errorf("copyDir(%q, %q): %w", src, dest, err)
+								err = rollbacker.AddCopyFileRollbackAction(backupPath, destPath)
+								if err != nil {
+									return fmt.Errorf("copyDir(%q, %q): %w", src, dest, err)
+								}
 							}
 						}
 					}
