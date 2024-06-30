@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -40,7 +41,7 @@ type Config struct {
 func DefaultConfigPath() (string, error) {
 	rootDir, err := pathutils.RootDir()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("DefaultConfigPath(): %w", err)
 	}
 
 	return filepath.Join(rootDir, DefaultConfigFileName), nil
@@ -66,7 +67,7 @@ func defaultConfig(root string) Config {
 func trimPath(path string) (string, error) {
 	rootDir, err := pathutils.RootDir()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("trimpPath(%q): %w", path, err)
 	}
 
 	path = strings.TrimPrefix(path, rootDir)
@@ -80,12 +81,14 @@ func trimPath(path string) (string, error) {
 
 func fillEmptyConfigFields(cfg Config) (Config, error) {
 	if cfg.OutputDir == "" {
-		return Config{}, errors.New("output directory not set")
+		return Config{}, errors.New(
+			"fillEmptyConfigFields(): cfg.OutputDir not set",
+		)
 	}
 
 	outputDir, err := trimPath(cfg.OutputDir)
 	if err != nil {
-		return Config{}, err
+		return Config{}, fmt.Errorf("fillEmptyConfigFields(): %w", err)
 	}
 
 	rootDir, _ := pathutils.RootDir()
@@ -110,36 +113,44 @@ func fillEmptyConfigFields(cfg Config) (Config, error) {
 
 func fixPaths(cfg Config) (Config, error) {
 	if cfg.TemplatePostFilePath == "" {
-		return Config{}, errors.New("post template file path not set")
+		return Config{}, errors.New(
+			"fixPaths(): cfg.TemplatePostFilePath not set",
+		)
 	}
 
 	if cfg.TemplateHeaderFilePath == "" {
-		return Config{}, errors.New("header template file path not set")
+		return Config{}, errors.New(
+			"FixPaths(): cfg.TemplateHeaderFilePath not set",
+		)
 	}
 
 	if cfg.TemplateFooterFilePath == "" {
-		return Config{}, errors.New("footer template file path not set")
+		return Config{}, errors.New(
+			"fixPaths(): cfg.TemplateFooterFilePath not set",
+		)
 	}
 
 	if cfg.TemplateIndexFilePath == "" {
-		return Config{}, errors.New("index template file path not set")
+		return Config{}, errors.New(
+			"fixPaths(): cfg.TemplateIndexFilePath not set",
+		)
 	}
 
 	if cfg.CSSDir == "" {
-		return Config{}, errors.New("css directory not set")
+		return Config{}, errors.New("fixPaths(): cfg.CSSDir not set")
 	}
 
 	if cfg.OutputDir == "" {
-		return Config{}, errors.New("output directory not set")
+		return Config{}, errors.New("fixPaths(): cfg.OutputDir not set")
 	}
 
 	if cfg.TempDir == "" {
-		return Config{}, errors.New("temp directory not set")
+		return Config{}, errors.New("fixPaths(): cfg.TempDir not set")
 	}
 
 	rootDir, err := pathutils.RootDir()
 	if err != nil {
-		return Config{}, err
+		return Config{}, fmt.Errorf("fixPaths(): %w", err)
 	}
 
 	cfg.TemplatePostFilePath, _ = trimPath(cfg.TemplatePostFilePath)
@@ -176,7 +187,7 @@ func fixPaths(cfg Config) (Config, error) {
 func LoadConfig(configFilePath string) (Config, error) {
 	rootDir, err := pathutils.RootDir()
 	if err != nil {
-		return Config{}, err
+		return Config{}, fmt.Errorf("LoadConfig(%q): %w", configFilePath, err)
 	}
 
 	if _, err = os.Stat(configFilePath); errors.Is(err, os.ErrNotExist) {
@@ -187,7 +198,7 @@ func LoadConfig(configFilePath string) (Config, error) {
 	cfg := Config{}
 	_, err = toml.DecodeFile(configFilePath, &cfg)
 	if err != nil {
-		return Config{}, err
+		return Config{}, fmt.Errorf("LoadConfig(%q): %w", configFilePath, err)
 	}
 
 	cfg, _ = fillEmptyConfigFields(cfg)

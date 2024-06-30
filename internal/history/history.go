@@ -24,7 +24,7 @@ type History struct {
 
 func ParseHistoryFile(cfg config.Config) (map[string]time.Time, error) {
 	if cfg.OutputDir == "" {
-		return nil, errors.New("output dir not set")
+		return nil, errors.New("ParseHistoryFile(): cfg.OutputDir not set")
 	}
 
 	history := History{
@@ -36,7 +36,7 @@ func ParseHistoryFile(cfg config.Config) (map[string]time.Time, error) {
 	)
 
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return nil, err
+		return nil, fmt.Errorf("ParseHistoryFile(): %w", err)
 	}
 
 	if errors.Is(err, os.ErrNotExist) {
@@ -52,7 +52,7 @@ func ParseHistoryFile(cfg config.Config) (map[string]time.Time, error) {
 
 func UpdateHistoryFile(history map[string]time.Time, cfg config.Config) error {
 	if cfg.TempDir == "" {
-		return errors.New("temp dir not set")
+		return errors.New("UpdateHistoryFile(): cfg.TempDir not set")
 	}
 
 	file, err := os.OpenFile(

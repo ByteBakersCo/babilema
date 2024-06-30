@@ -75,7 +75,7 @@ func checkRequiredMetadata(metadata Metadata) error {
 			missingFields,
 			", ",
 		)
-		return errors.New(msg)
+		return fmt.Errorf("checkRequiredMetadata(): %s", msg)
 	}
 
 	return nil
@@ -83,15 +83,21 @@ func checkRequiredMetadata(metadata Metadata) error {
 
 func extractMetadata(issue github.Issue, cfg config.Config) (Metadata, error) {
 	if cfg.DateLayout == "" {
-		return Metadata{}, errors.New("date layout not set")
+		return Metadata{}, errors.New(
+			"extractMetadata(): cfg.DateLayout not set",
+		)
 	}
 
 	if cfg.WebsiteURL == "" {
-		return Metadata{}, errors.New("website URL not set")
+		return Metadata{}, errors.New(
+			"extractMetadata(): cfg.WebsiteURL not set",
+		)
 	}
 
 	if cfg.BlogTitle == "" {
-		return Metadata{}, errors.New("blog title not set")
+		return Metadata{}, errors.New(
+			"extractMetadata(): cfg.BlogTitle not set",
+		)
 	}
 
 	content := issue.GetBody()
@@ -102,7 +108,7 @@ func extractMetadata(issue github.Issue, cfg config.Config) (Metadata, error) {
 	hasMetadataHeader := len(lines) > 3 || lines[0] == "---"
 
 	if !hasMetadataHeader {
-		return Metadata{}, errors.New("no TOML header found")
+		return Metadata{}, errors.New("extractMetadata(): no TOML header found")
 	}
 
 	endOfHeader := 1
@@ -115,12 +121,12 @@ func extractMetadata(issue github.Issue, cfg config.Config) (Metadata, error) {
 		&metadata,
 	)
 	if err != nil {
-		return Metadata{}, err
+		return Metadata{}, fmt.Errorf("extractMetadata(): %w", err)
 	}
 
 	err = checkRequiredMetadata(metadata)
 	if err != nil {
-		return Metadata{}, err
+		return Metadata{}, fmt.Errorf("extractMetadata(): %w", err)
 	}
 
 	metadata.DatePublished = FormatTime(issue.GetCreatedAt(), cfg.DateLayout)
@@ -159,7 +165,7 @@ func extractMarkdown(content []byte) ([]byte, error) {
 				err = errors.New("blog post has no content")
 			}
 
-			return nil, err
+			return nil, fmt.Errorf("extractMarkdown(): %w", err)
 		}
 
 		if lines[endOfHeader] == "---" {
@@ -179,12 +185,12 @@ func extractMarkdown(content []byte) ([]byte, error) {
 
 func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
 	if cfg.TempDir == "" {
-		return nil, errors.New("temp dir not set")
+		return nil, errors.New("ParseIssues(): cfg.TempDir not set")
 	}
 
 	ghToken := os.Getenv("GITHUB_TOKEN")
 	if ghToken == "" {
-		return nil, errors.New("GITHUB_TOKEN not set")
+		return nil, errors.New("ParseIssues(): GITHUB_TOKEN not set")
 	}
 
 	ctx := context.Background()
@@ -194,7 +200,7 @@ func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
 
 	repo := os.Getenv("GITHUB_REPOSITORY")
 	if repo == "" {
-		return nil, errors.New("GITHUB_REPOSITORY not set")
+		return nil, errors.New("ParseIssues(): GITHUB_REPOSITORY not set")
 	}
 
 	parts := strings.Split(repo, "/")
@@ -202,12 +208,12 @@ func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
 
 	issues, _, err := client.Issues.ListByRepo(ctx, owner, repo, nil)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ParseIssues(): %w", err)
 	}
 
 	postsHistory, err := history.ParseHistoryFile(cfg)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ParseIssues(): %w", err)
 	}
 
 	var permissionLevel *github.RepositoryPermissionLevel
@@ -227,7 +233,7 @@ func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
 			issue.GetUser().GetLogin(),
 		)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("ParseIssues(): %w", err)
 		}
 
 		hasWritePermission := permissionLevel.GetPermission() == "write" ||
@@ -239,7 +245,7 @@ func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
 
 		metadata, err = extractMetadata(*issue, cfg)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("ParseIssues(): %w", err)
 		}
 
 		if _, ok := postsHistory[metadata.Slug]; ok {
@@ -253,7 +259,7 @@ func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
 
 		content, err = extractMarkdown([]byte(issue.GetBody()))
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("ParseIssues(): %w", err)
 		}
 
 		content = markdown.ToHTML(content, nil, nil)
@@ -269,12 +275,12 @@ func ParseIssues(cfg config.Config) ([]ParsedIssue, error) {
 	if len(parsedIssues) > 0 {
 		err = os.MkdirAll(cfg.TempDir, os.ModePerm)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("ParseIssues(): %w", err)
 		}
 
 		err = history.UpdateHistoryFile(postsHistory, cfg)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("ParseIssues(): %w", err)
 		}
 	}
 

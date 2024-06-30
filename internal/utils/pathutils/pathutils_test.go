@@ -9,8 +9,8 @@ import (
 func TestRootDir(t *testing.T) {
 	wd, _ := os.Getwd()
 	parent := filepath.Dir(wd)
-	grandparent := filepath.Dir(parent)
-	expected := filepath.Base(grandparent)
+	grandgrandparent := filepath.Dir(filepath.Dir(parent))
+	expected := filepath.Base(grandgrandparent)
 	rootDir, _ := RootDir()
 	actual := filepath.Base(rootDir)
 	if actual != string(expected) {

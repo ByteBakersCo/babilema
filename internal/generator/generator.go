@@ -3,6 +3,7 @@ package generator
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"html/template"
 	"io"
 	"io/fs"
@@ -78,7 +79,7 @@ type article struct {
 func moveGeneratedFilesToOutputDir(cfg config.Config) error {
 	err := copyutils.CopyDir(cfg.TempDir, cfg.OutputDir)
 	if err != nil {
-		return err
+		return fmt.Errorf("moveGeneratedFilesToOutputDir(): %w", err)
 	}
 
 	return os.RemoveAll(cfg.TempDir)
@@ -111,11 +112,15 @@ func extractPlainText(content template.HTML) string {
 
 func extractCSSLinks(cssDir string, cfg config.Config) ([]string, error) {
 	if cssDir == "" {
-		return nil, errors.New("css directory not set")
+		return nil, errors.New(
+			"extractCSSLinks(%q, cfg): css directory not set",
+		)
 	}
 
 	if cfg.WebsiteURL == "" {
-		return nil, errors.New("website URL not set")
+		return nil, errors.New(
+			"extractCSSLinks(%q, cfg): cfg.WebsiteURL not set",
+		)
 	}
 
 	var cssLinks []string
@@ -123,23 +128,47 @@ func extractCSSLinks(cssDir string, cfg config.Config) ([]string, error) {
 		cssDir,
 		func(path string, entry fs.DirEntry, err error) error {
 			if err != nil {
-				return err
+				return fmt.Errorf(
+					"extractCSSLinks(%q, cfg) - WalkDir(%q, %q): %w",
+					cssDir,
+					path,
+					entry,
+					err,
+				)
 			}
 
 			info, err := entry.Info()
 			if err != nil {
-				return err
+				return fmt.Errorf(
+					"extractCSSLinks(%q, cfg) - WalkDir(%q, %q): %w",
+					cssDir,
+					path,
+					entry,
+					err,
+				)
 			}
 
 			if !info.IsDir() && strings.HasSuffix(path, ".css") {
 				relativeFilePath, err := pathutils.RelativeFilePath(path)
 				if err != nil {
-					return err
+					return fmt.Errorf(
+						"extractCSSLinks(%q, cfg) - WalkDir(%q, %q): %w",
+						cssDir,
+						path,
+						entry,
+						err,
+					)
 				}
 
 				websiteURL, err := url.Parse(cfg.WebsiteURL)
 				if err != nil {
-					return err
+					return fmt.Errorf(
+						"extractCSSLinks(%q, cfg) - WalkDir(%q, %q): %w",
+						cssDir,
+						path,
+						entry,
+						err,
+					)
 				}
 
 				relativeFilePath = filepath.Join(
@@ -154,7 +183,7 @@ func extractCSSLinks(cssDir string, cfg config.Config) ([]string, error) {
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("extractCSSLinks(%q, cfg): %w", cssDir, err)
 	}
 
 	return cssLinks, nil
@@ -171,19 +200,19 @@ func populateTemplateData(
 
 	data.CSSLinks, err = extractCSSLinks(cfg.CSSDir, cfg)
 	if err != nil {
-		return templateData{}, err
+		return templateData{}, fmt.Errorf("populateTemplateData(): %w", err)
 	}
 
 	var header bytes.Buffer
 	err = renderer.Render(cfg.TemplateHeaderFilePath, &header, headerData)
 	if err != nil {
-		return templateData{}, err
+		return templateData{}, fmt.Errorf("populateTemplateData(): %w", err)
 	}
 
 	var footer bytes.Buffer
 	err = renderer.Render(cfg.TemplateFooterFilePath, &footer, footerData)
 	if err != nil {
-		return templateData{}, err
+		return templateData{}, fmt.Errorf("populateTemplateData(): %w", err)
 	}
 
 	data.Header = template.HTML(header.String())
@@ -203,26 +232,28 @@ func generateBlogIndexPage(
 	}
 
 	if cfg.WebsiteURL == "" {
-		return errors.New("website URL not set")
+		return errors.New("generateBlogIndexPage(): cfg.WebsiteURL not set")
 	}
 
 	if cfg.TemplateIndexFilePath == "" {
-		return errors.New("index template file path not set")
+		return errors.New(
+			"generateBlogIndexPage(): cfg.TemplateIndexFilePath path not set",
+		)
 
 	}
 
 	if cfg.TempDir == "" {
-		return errors.New("temp dir not set")
+		return errors.New("generateBlogIndexPage(): cfg.TempDir not set")
 	}
 
 	engine, err := newTemplateRenderer(cfg)
 	if err != nil {
-		return err
+		return fmt.Errorf("generateBlogIndexPage(): %w", err)
 	}
 
 	websiteURL, err := url.Parse(cfg.WebsiteURL)
 	if err != nil {
-		return err
+		return fmt.Errorf("generateBlogIndexPage(): %w", err)
 	}
 
 	for i := range articles {
@@ -232,7 +263,7 @@ func generateBlogIndexPage(
 	data := indexTemplateData{Articles: articles}
 	data.templateData, err = populateTemplateData(engine, cfg, nil, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("generateBlogIndexPage(): %w", err)
 	}
 
 	writer := testOutputWriter
@@ -242,7 +273,7 @@ func generateBlogIndexPage(
 
 		outputFile, error := os.Create(path)
 		if error != nil {
-			return error
+			return fmt.Errorf("generateBlogIndexPage(): %w", error)
 		}
 
 		defer func() {
@@ -257,7 +288,7 @@ func generateBlogIndexPage(
 	log.Println("Generating blog index page...")
 	err = engine.Render(cfg.TemplateIndexFilePath, writer, data)
 	if err != nil {
-		return err
+		return fmt.Errorf("generateBlogIndexPage(): %w", err)
 	}
 
 	return nil
@@ -284,13 +315,13 @@ func GenerateBlogPosts(
 	var err error
 	engine, err := newTemplateRenderer(cfg)
 	if err != nil {
-		return err
+		return fmt.Errorf("GenerateBlogPosts(): %w", err)
 	}
 
 	var data postTemplateData
 	data.templateData, err = populateTemplateData(engine, cfg, nil, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("GenerateBlogPosts(): %w", err)
 	}
 
 	var articles []article
@@ -312,7 +343,7 @@ func GenerateBlogPosts(
 
 			outputFile, error := os.Create(outputFilePath)
 			if error != nil {
-				return error
+				return fmt.Errorf("GenerateBlogPosts(): %w", error)
 			}
 
 			defer func() {
@@ -326,7 +357,7 @@ func GenerateBlogPosts(
 			var articleURL string
 			articleURL, err = pathutils.RelativeFilePath(relativePath)
 			if err != nil {
-				return err
+				return fmt.Errorf("GenerateBlogPosts(): %w", err)
 			}
 
 			articles = append(articles, article{
@@ -342,14 +373,14 @@ func GenerateBlogPosts(
 		log.Println("Generating blog post:", data.Metadata.Slug)
 		err = engine.Render(cfg.TemplatePostFilePath, writer, data)
 		if err != nil {
-			return err
+			return fmt.Errorf("GenerateBlogPosts(): %w", err)
 		}
 	}
 
 	if len(articles) > 0 {
 		err = generateBlogIndexPage(articles, cfg, testOutputWriter)
 		if err != nil {
-			return err
+			return fmt.Errorf("GenerateBlogPosts(): %w", err)
 		}
 	}
 
@@ -357,7 +388,7 @@ func GenerateBlogPosts(
 	if !isTest {
 		err = moveGeneratedFilesToOutputDir(cfg)
 		if err != nil {
-			return err
+			return fmt.Errorf("GenerateBlogPosts(): %w", err)
 		}
 	}
 

@@ -29,11 +29,11 @@ func (defaultTemplateRenderer) Render(
 
 	tmplt, err := template.ParseFiles(templateFilePath)
 	if err != nil {
-		return err
+		return fmt.Errorf("Render(%q): %w", templateFilePath, err)
 	}
 
 	if err = tmplt.Execute(writer, data); err != nil {
-		return err
+		return fmt.Errorf("Render(%q): %w", templateFilePath, err)
 	}
 
 	return nil

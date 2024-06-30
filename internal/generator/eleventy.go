@@ -29,7 +29,10 @@ func NewEleventyTemplateRenderer(
 ) (eleventyTemplateRenderer, error) {
 	configFilePath, err := findConfigFile(cfg)
 	if err != nil {
-		return eleventyTemplateRenderer{}, err
+		return eleventyTemplateRenderer{}, fmt.Errorf(
+			"NewEleventyTemplateRenderer(): %w",
+			err,
+		)
 	}
 
 	return eleventyTemplateRenderer{
@@ -80,7 +83,7 @@ func (renderer eleventyTemplateRenderer) Render(
 
 		dataFilePath, err = createDataFile(filename, data)
 		if err != nil {
-			return err
+			return fmt.Errorf("Render(%q): %w", templateFilePath, err)
 		}
 
 		log.Println("Eleventy data file created:", dataFilePath)
@@ -107,18 +110,18 @@ func (renderer eleventyTemplateRenderer) Render(
 
 	var jsonData parsedData
 	if err = json.Unmarshal(out.Bytes(), &jsonData); err != nil {
-		return err
+		return fmt.Errorf("Render(%q): %w", templateFilePath, err)
 	}
 
 	log.Printf("Eleventy output: %s", jsonData.OutputPath)
 
 	if _, err = io.WriteString(writer, jsonData.Content); err != nil {
-		return err
+		return fmt.Errorf("Render(%q): %w", templateFilePath, err)
 	}
 
 	if dataFilePath != "" {
 		if err = os.Remove(dataFilePath); err != nil {
-			return err
+			return fmt.Errorf("Render(%q): %w", templateFilePath, err)
 		}
 	}
 
@@ -133,16 +136,17 @@ func createDataFile(parentFilePath string, data any) (string, error) {
 
 	file, err := os.Create(dataFilePath)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("createDataFile(%q, data): %w", dataFilePath, err)
 	}
+	defer file.Close()
 
 	encoder := json.NewEncoder(file)
 	if err = encoder.Encode(data); err != nil {
-		return "", err
+		return "", fmt.Errorf("createDataFile(%q, data): %w", dataFilePath, err)
 	}
 
 	if err = file.Close(); err != nil {
-		return "", err
+		return "", fmt.Errorf("createDataFile(%q, data): %w", dataFilePath, err)
 	}
 
 	return dataFilePath, nil
@@ -164,12 +168,12 @@ func createConfigFile(path string, cfg config.Config) error {
 
 	file, err := os.Create(path)
 	if err != nil {
-		return err
+		return fmt.Errorf("createConfigFile(%q): %w", path, err)
 	}
 	defer file.Close()
 
 	if _, err = file.WriteString(content); err != nil {
-		return err
+		return fmt.Errorf("createConfigFile(%q): %w", path, err)
 	}
 
 	return file.Sync()
@@ -178,7 +182,7 @@ func createConfigFile(path string, cfg config.Config) error {
 func findConfigFile(cfg config.Config) (string, error) {
 	rootDir, err := pathutils.RootDir()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("findConfigFile(): %w", err)
 	}
 
 	configFileNames := []string{
@@ -214,7 +218,7 @@ func findConfigFile(cfg config.Config) (string, error) {
 	)
 	err = createConfigFile(configFileNames[0], cfg)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("findConfigFile(): %w", err)
 	}
 
 	return configFileNames[0], nil
