@@ -340,6 +340,7 @@ func copyDir(
 	errGroup, ctx := errgroup.WithContext(ctx)
 	for _, entry := range srcDirContents {
 		errGroup.Go(func() error {
+			var err error
 			select {
 			case <-ctx.Done():
 				return ctx.Err()
@@ -388,13 +389,6 @@ func copyDir(
 					err = CopyFile(srcPath, destPath)
 					if err != nil {
 						return fmt.Errorf("copyDir(%q, %q): %w", src, dest, err)
-					}
-
-					if backupDir == "" {
-						err = rollbacker.AddCopyFileRollbackAction(destPath, srcPath)
-						if err != nil {
-							return fmt.Errorf("copyDir(%q, %q): %w", src, dest, err)
-						}
 					}
 
 					return nil
