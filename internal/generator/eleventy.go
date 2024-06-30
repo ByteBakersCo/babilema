@@ -154,7 +154,7 @@ func createDataFile(parentFilePath string, data any) (string, error) {
 
 func createConfigFile(path string, cfg config.Config) error {
 	if cfg.OutputDir == "" {
-		return errors.New("output directory is not set")
+		return errors.New("createConfigFile(): cfg.OutputDir is not set")
 	}
 
 	content := fmt.Sprintf(`module.exports = function(eleventyConfig) {

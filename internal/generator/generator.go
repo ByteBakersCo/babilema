@@ -305,11 +305,11 @@ func GenerateBlogPosts(
 	}
 
 	if cfg.TempDir == "" {
-		return errors.New("temp dir not set")
+		return errors.New("GenerateBlogPosts(): cfg.TempDir not set")
 	}
 
 	if cfg.OutputDir == "" {
-		return errors.New("output dir not set")
+		return errors.New("GeneratePlogPosts(): cfg.OutputDir not set")
 	}
 
 	var err error
