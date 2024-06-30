@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -9,29 +10,38 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
-
-	"github.com/ByteBakersCo/babilema/internal/utils"
+	"github.com/ByteBakersCo/babilema/internal/utils/pathutils"
 )
 
 const DefaultConfigFileName string = ".babilema.toml"
+const DefaultDateLayout string = "2006-01-02 15:04:05"
+
+type TemplateRenderer string
+
+const (
+	DefaultTemplateRenderer  TemplateRenderer = "default"
+	EleventyTemplateRenderer TemplateRenderer = "eleventy"
+)
 
 type Config struct {
-	WebsiteURL             string `toml:"website_url"`
-	BlogTitle              string `toml:"blog_title"`
-	BlogPostIssuePrefix    string `toml:"blog_post_issue_prefix"`
-	TemplatePostFilePath   string `toml:"template_post_file_path"`
-	TemplateHeaderFilePath string `toml:"template_header_file_path"`
-	TemplateFooterFilePath string `toml:"template_footer_file_path"`
-	TemplateIndexFilePath  string `toml:"template_index_file_path"`
-	CSSDir                 string `toml:"css_dir"`
-	OutputDir              string `toml:"output_dir"`
-	TempDir                string `toml:"temp_dir"`
+	TemplateRenderer       TemplateRenderer `toml:"template_renderer"`
+	DateLayout             string           `toml:"date_layout"`
+	WebsiteURL             string           `toml:"website_url"`
+	BlogTitle              string           `toml:"blog_title"`
+	BlogPostIssuePrefix    string           `toml:"blog_post_issue_prefix"`
+	TemplatePostFilePath   string           `toml:"template_post_file_path"`
+	TemplateHeaderFilePath string           `toml:"template_header_file_path"`
+	TemplateFooterFilePath string           `toml:"template_footer_file_path"`
+	TemplateIndexFilePath  string           `toml:"template_index_file_path"`
+	CSSDir                 string           `toml:"css_dir"`
+	OutputDir              string           `toml:"output_dir"`
+	TempDir                string           `toml:"temp_dir"`
 }
 
 func DefaultConfigPath() (string, error) {
-	rootDir, err := utils.RootDir()
+	rootDir, err := pathutils.RootDir()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("DefaultConfigPath(): %w", err)
 	}
 
 	return filepath.Join(rootDir, DefaultConfigFileName), nil
@@ -39,6 +49,8 @@ func DefaultConfigPath() (string, error) {
 
 func defaultConfig(root string) Config {
 	return Config{
+		TemplateRenderer:       DefaultTemplateRenderer,
+		DateLayout:             DefaultDateLayout,
 		WebsiteURL:             "http://localhost:8080",
 		BlogTitle:              "",
 		BlogPostIssuePrefix:    "[BLOG]",
@@ -53,9 +65,9 @@ func defaultConfig(root string) Config {
 }
 
 func trimPath(path string) (string, error) {
-	rootDir, err := utils.RootDir()
+	rootDir, err := pathutils.RootDir()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("trimpPath(%q): %w", path, err)
 	}
 
 	path = strings.TrimPrefix(path, rootDir)
@@ -68,12 +80,18 @@ func trimPath(path string) (string, error) {
 }
 
 func fillEmptyConfigFields(cfg Config) (Config, error) {
-	outputDir, err := trimPath(cfg.OutputDir)
-	if err != nil {
-		return Config{}, err
+	if cfg.OutputDir == "" {
+		return Config{}, errors.New(
+			"fillEmptyConfigFields(): cfg.OutputDir not set",
+		)
 	}
 
-	rootDir, _ := utils.RootDir()
+	outputDir, err := trimPath(cfg.OutputDir)
+	if err != nil {
+		return Config{}, fmt.Errorf("fillEmptyConfigFields(): %w", err)
+	}
+
+	rootDir, _ := pathutils.RootDir()
 	cfg.OutputDir = filepath.Join(rootDir, outputDir)
 
 	defaultCfg := defaultConfig(cfg.OutputDir)
@@ -94,9 +112,45 @@ func fillEmptyConfigFields(cfg Config) (Config, error) {
 }
 
 func fixPaths(cfg Config) (Config, error) {
-	rootDir, err := utils.RootDir()
+	if cfg.TemplatePostFilePath == "" {
+		return Config{}, errors.New(
+			"fixPaths(): cfg.TemplatePostFilePath not set",
+		)
+	}
+
+	if cfg.TemplateHeaderFilePath == "" {
+		return Config{}, errors.New(
+			"FixPaths(): cfg.TemplateHeaderFilePath not set",
+		)
+	}
+
+	if cfg.TemplateFooterFilePath == "" {
+		return Config{}, errors.New(
+			"fixPaths(): cfg.TemplateFooterFilePath not set",
+		)
+	}
+
+	if cfg.TemplateIndexFilePath == "" {
+		return Config{}, errors.New(
+			"fixPaths(): cfg.TemplateIndexFilePath not set",
+		)
+	}
+
+	if cfg.CSSDir == "" {
+		return Config{}, errors.New("fixPaths(): cfg.CSSDir not set")
+	}
+
+	if cfg.OutputDir == "" {
+		return Config{}, errors.New("fixPaths(): cfg.OutputDir not set")
+	}
+
+	if cfg.TempDir == "" {
+		return Config{}, errors.New("fixPaths(): cfg.TempDir not set")
+	}
+
+	rootDir, err := pathutils.RootDir()
 	if err != nil {
-		return Config{}, err
+		return Config{}, fmt.Errorf("fixPaths(): %w", err)
 	}
 
 	cfg.TemplatePostFilePath, _ = trimPath(cfg.TemplatePostFilePath)
@@ -105,6 +159,8 @@ func fixPaths(cfg Config) (Config, error) {
 	cfg.TemplateIndexFilePath, _ = trimPath(cfg.TemplateIndexFilePath)
 	cfg.CSSDir, _ = trimPath(cfg.CSSDir)
 	cfg.OutputDir, _ = trimPath(cfg.OutputDir)
+	cfg.TempDir, _ = trimPath(cfg.TempDir)
+
 	cfg.TemplatePostFilePath = filepath.Join(
 		rootDir,
 		cfg.TemplatePostFilePath,
@@ -123,14 +179,15 @@ func fixPaths(cfg Config) (Config, error) {
 	)
 	cfg.CSSDir = filepath.Join(rootDir, cfg.CSSDir)
 	cfg.OutputDir = filepath.Join(rootDir, cfg.OutputDir)
+	cfg.TempDir = filepath.Join(rootDir, cfg.TempDir)
 
 	return cfg, nil
 }
 
 func LoadConfig(configFilePath string) (Config, error) {
-	rootDir, err := utils.RootDir()
+	rootDir, err := pathutils.RootDir()
 	if err != nil {
-		return Config{}, err
+		return Config{}, fmt.Errorf("LoadConfig(%q): %w", configFilePath, err)
 	}
 
 	if _, err = os.Stat(configFilePath); errors.Is(err, os.ErrNotExist) {
@@ -141,11 +198,15 @@ func LoadConfig(configFilePath string) (Config, error) {
 	cfg := Config{}
 	_, err = toml.DecodeFile(configFilePath, &cfg)
 	if err != nil {
-		return Config{}, err
+		return Config{}, fmt.Errorf("LoadConfig(%q): %w", configFilePath, err)
 	}
 
 	cfg, _ = fillEmptyConfigFields(cfg)
 	cfg, _ = fixPaths(cfg)
+
+	cfg.TemplateRenderer = TemplateRenderer(
+		strings.ToLower(string(cfg.TemplateRenderer)),
+	)
 
 	log.Println("Config loaded successfully from", configFilePath)
 

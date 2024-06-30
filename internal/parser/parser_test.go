@@ -9,7 +9,7 @@ import (
 	"github.com/google/go-github/github"
 
 	"github.com/ByteBakersCo/babilema/internal/config"
-	"github.com/ByteBakersCo/babilema/internal/utils"
+	"github.com/ByteBakersCo/babilema/internal/utils/testutils"
 )
 
 func mockIssue() github.Issue {
@@ -78,23 +78,30 @@ This is a simple test post for Babilema`)
 
 func TestExtractMetadata(t *testing.T) {
 	expected := Metadata{
-		Title:         "Test post",
-		Slug:          "test-post",
-		BlogTitle:     "Overwritten Website name",
-		Description:   "This is a test post for Babilema",
-		Keywords:      []string{"test", "post", "babilema"},
-		Author:        "Babilema team",
-		Image:         "test-post.jpg",
-		Publisher:     "Babilema team",
-		Tags:          []string{"test", "post", "babilema"},
-		URL:           "example.com/test-post",
-		DatePublished: time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
-		DateModified:  time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
+		Title:       "Test post",
+		Slug:        "test-post",
+		BlogTitle:   "Overwritten Website name",
+		Description: "This is a test post for Babilema",
+		Keywords:    []string{"test", "post", "babilema"},
+		Author:      "Babilema team",
+		Image:       "test-post.jpg",
+		Publisher:   "Babilema team",
+		Tags:        []string{"test", "post", "babilema"},
+		URL:         "example.com/test-post/",
+		DatePublished: FormatTime(
+			time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
+			config.DefaultDateLayout,
+		),
+		DateModified: FormatTime(
+			time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
+			config.DefaultDateLayout,
+		),
 	}
 
 	actual, err := extractMetadata(
 		mockIssue(),
 		config.Config{
+			DateLayout: config.DefaultDateLayout,
 			BlogTitle:  "This should be ignored",
 			WebsiteURL: "example.com",
 		},
@@ -105,15 +112,25 @@ func TestExtractMetadata(t *testing.T) {
 
 	if !reflect.DeepEqual(actual, expected) {
 		t.Error(
-			utils.FormatStruct(expected, "Expected output to be"),
-			utils.FormatStruct(actual, "\ngot"),
+			testutils.FormatStruct(expected, "Expected output to be"),
+			testutils.FormatStruct(
+				actual,
+				"\n--------------------got--------------------\n",
+			),
 		)
 	}
 
 	// Sad path
-	badActual, err := extractMetadata(badMockIssue(), config.Config{})
+	badActual, err := extractMetadata(
+		badMockIssue(),
+		config.Config{
+			DateLayout: "2026-11-11",
+			WebsiteURL: "foo.bar",
+			BlogTitle:  "foobar",
+		},
+	)
 	if err == nil {
-		t.Error(utils.FormatStruct(badActual, "Expected error, got"))
+		t.Error(testutils.FormatStruct(badActual, "Expected error, got"))
 	}
 	missingMetadata := []string{
 		"Slug",

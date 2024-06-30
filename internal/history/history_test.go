@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/ByteBakersCo/babilema/internal/config"
-	"github.com/ByteBakersCo/babilema/internal/utils"
+	"github.com/ByteBakersCo/babilema/internal/utils/testutils"
 )
 
 func cleanup() {
@@ -24,6 +24,7 @@ func TestUpdateHistoryFile(t *testing.T) {
 	}
 	err := UpdateHistoryFile(history, config.Config{
 		OutputDir: ".",
+		TempDir:   ".",
 	})
 	if err != nil {
 		t.Error(err)
@@ -61,8 +62,8 @@ func TestParseHistoryFile(t *testing.T) {
 
 	if !maps.Equal(expected, actual) {
 		t.Error(
-			utils.FormatStruct(expected, "Expected output to be"),
-			utils.FormatStruct(actual, "\ngot"),
+			testutils.FormatStruct(expected, "Expected output to be"),
+			testutils.FormatStruct(actual, "\ngot"),
 		)
 	}
 }
