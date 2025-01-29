@@ -4,12 +4,15 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/ByteBakersCo/babilema/internal/utils"
+	"github.com/ByteBakersCo/babilema/internal/utils/pathutils"
+	"github.com/ByteBakersCo/babilema/internal/utils/testutils"
 )
 
 func TestLoadConfig(t *testing.T) {
-	root, _ := utils.RootDir()
+	root, _ := pathutils.RootDir()
 	expected := Config{
+		TemplateRenderer:       DefaultTemplateRenderer,
+		DateLayout:             DefaultDateLayout,
 		WebsiteURL:             "http://localhost:8080",
 		BlogTitle:              "",
 		BlogPostIssuePrefix:    "[BLOG]",
@@ -31,8 +34,8 @@ func TestLoadConfig(t *testing.T) {
 
 	if expected != actual {
 		t.Error(
-			utils.FormatStruct(expected, "Expected output to be"),
-			utils.FormatStruct(actual, "\ngot"),
+			testutils.FormatStruct(expected, "Expected output to be"),
+			testutils.FormatStruct(actual, "\ngot"),
 		)
 	}
 
@@ -47,8 +50,22 @@ func TestLoadConfig(t *testing.T) {
 
 	if expected != actual {
 		t.Error(
-			utils.FormatStruct(expected, "Expected output to be"),
-			utils.FormatStruct(actual, "\ngot"),
+			testutils.FormatStruct(expected, "Expected output to be"),
+			testutils.FormatStruct(actual, "\ngot"),
 		)
+	}
+}
+
+func TestTrimPath(t *testing.T) {
+	rootDir, _ := pathutils.RootDir()
+
+	expected := "foo/bar/baz"
+	actual, err := trimPath(filepath.Join(rootDir, "foo", "bar", "baz"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if expected != actual {
+		t.Errorf("expected %s, got %s", expected, actual)
 	}
 }

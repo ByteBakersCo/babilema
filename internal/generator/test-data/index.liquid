@@ -1,0 +1,19 @@
+<html>
+
+<body>
+    <header>{{ Header }}</header>
+    {% for article in Articles %}
+    <article>
+        <a href="{{ article.URL }}">
+            <h1>{{ article.Title }}</h1>
+        </a>
+        <p>{{ article.Preview }}</p>
+        <p>Author: {{ article.Author }}</p>
+        <p>Published: {{ article.DatePublished }}</p>
+        <a href="{{ article.URL }}"><img src="{{ article.Image }}" alt="{{ article.Title }}" /></a>
+    </article>
+    {% endfor %}
+    <footer>{{ Footer }}</footer>
+</body>
+
+</html>
