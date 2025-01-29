@@ -170,7 +170,7 @@ And use US English :D
 - [ ] Add support for custom scripts (JS)
 - [ ] Add "related articles" section generator
 - [x] Handle `index.html` file
-- [ ] Add testing blog on this repo
+- [x] Add testing blog on this repo
 - [ ] Add support for custom metadata
 - [ ] Add support for injecting data in header + footer
 - [ ] (CI) Check if it's possible to trigger a rebuild on issue update
